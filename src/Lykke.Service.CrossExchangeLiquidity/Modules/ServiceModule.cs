@@ -1,9 +1,12 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings;
 using Lykke.Service.CrossExchangeLiquidity.Services;
+using Lykke.Service.CrossExchangeLiquidity.Services.OrderBook;
 using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,6 +50,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                 .As<IShutdownManager>();
 
             // TODO: Add your dependencies here
+            builder.RegisterType<OrderBookProcessor>()
+                .As<IOrderBookProcessor>();
+            builder.RegisterType<OrderBookDeserializer>()
+                .As<IMessageDeserializer<OrderBook>>();
+
+            builder.RegisterType<OrderBookSubscriber>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance()
+                .WithParameter("rabbitMqSettings", _settings.CurrentValue.OrderBook.RabbitMqOrderBook);
 
             builder.Populate(_services);
         }
