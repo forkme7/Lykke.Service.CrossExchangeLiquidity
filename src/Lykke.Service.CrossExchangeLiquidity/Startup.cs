@@ -10,6 +10,7 @@ using Lykke.Logs;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Settings;
 using Lykke.Service.CrossExchangeLiquidity.Modules;
+using Lykke.Service.CrossExchangeLiquidity.Services.OrderBook;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+﻿using System.Collections.Generic;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 {
     public class OrderBookSettings
     {
-        public RabbitMqSettings RabbitMqOrderBook { get; set; }
+        public RabbitMqSettings Source { get; set; }
 
-        public IReadOnlyCollection<string> TargetPairs { get; set; }
+        public IReadOnlyCollection<SourceAssetPairIdsSettings> Filter { get; set; }
     }
 }

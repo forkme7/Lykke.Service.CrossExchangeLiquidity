@@ -1,28 +1,48 @@
 {
-  "CrossExchangeLiquidityService": 
-  {
-    "Db": 
-    {
-      "LogsConnString": "DefaultEndpointsProtocol=https;AccountName=lkedevlogs;AccountKey=mhOA//Lv9BvDyIBFqDRNsdSa+hgr2Mix+9dCOAnJUT3EHx0fQrl7itHrEsOcosCcovWNNSw+r5+lYfQ8+H9V4A==",
+  "CrossExchangeLiquidityService": {
+    "Db": {
+      "LogsConnString":
+        "DefaultEndpointsProtocol=https;AccountName=lkedevlogs;AccountKey=mhOA//Lv9BvDyIBFqDRNsdSa+hgr2Mix+9dCOAnJUT3EHx0fQrl7itHrEsOcosCcovWNNSw+r5+lYfQ8+H9V4A=="
     },
     "OrderBook": {
-      "RabbitMqOrderBook": {
+      "Source": {
         "ConnectionString": "amqp://lykke.history:lykke.history@rabbit-me.lykke-me.svc.cluster.local:5672",
         "ExchangeName": "exchangeconnector.orderBooks",
         "NameOfEndpoint": "CrossExchangeLiquidity"
       },
-      "TargetPairs": [
-          "BTCETH"
-        ]
+      "Filter": [
+        {
+          "Source": "bitfinex",
+          "AssetPairIds": [ "ETHBTC" ]
+        }
+      ]
+    },
+    "LykkeExchange": {
+      "IpEndpoint": {
+        "Port": 8888,
+        "Host": "me.lykke-me.svc.cluster.local",
+        "InternalHost": "me.lykke-me.svc.cluster.local",
+        "MaxConnections": 100
+      },
+      "Retry": {
+        "Times": 5,
+        "Multiplier": 2,
+        "TimeSpan": "00:00:00.100"
+      },
+      "Filter": {
+        "Count": 5
+      },
+      "TimeSpan": "00:00:10",
+      "clientId": "00974096-2bda-4a85-85cb-f8883eb1be3c"
     }
   },
-  "SlackNotifications": 
-  {
-    "AzureQueue": 
-    {
-      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=lkedevshared;AccountKey=deMBXlOj0telRE7poKY+2P9MwPcSsOJ+1IUqG6xoQ3kdDAMhxzvh22zKAXnlaKyPeF0gpbzgK4k7M9ZLdlTx+w==",
+  "SlackNotifications": {
+    "AzureQueue": {
+      "ConnectionString":
+        "DefaultEndpointsProtocol=https;AccountName=lkedevshared;AccountKey=deMBXlOj0telRE7poKY+2P9MwPcSsOJ+1IUqG6xoQ3kdDAMhxzvh22zKAXnlaKyPeF0gpbzgK4k7M9ZLdlTx+w==",
       "QueueName": "slack-notifications"
     },
     "ThrottlingLimitSeconds": 60
   }
 }
+

@@ -16,7 +16,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
         private readonly ILog _log;
         private readonly IOrderBookProcessor _processor;
         private readonly IMessageDeserializer<Domain.OrderBook> _deserializer;
-        private readonly RabbitMqSettings _rabbitMqSettings;
+        private readonly IRabbitMqSettings _settings;
         private RabbitMqSubscriber<Domain.OrderBook> _subscriber;
 
         public OrderBookSubscriber(
@@ -24,21 +24,21 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
             IOrderBookProcessor processor,
             IMessageDeserializer<Domain.OrderBook> deserializer,
             IShutdownManager shutdownManager,
-            RabbitMqSettings rabbitMqSettings)
+            IRabbitMqSettings settings)
         {
             _log = log;
             _processor = processor;
             _deserializer = deserializer;
-            _rabbitMqSettings = rabbitMqSettings;
+            _settings = settings;
             shutdownManager.Register(this);
         }
 
         public void Start()
         {
             var settings = RabbitMqSubscriptionSettings
-                .CreateForSubscriber(_rabbitMqSettings.ConnectionString,
-                    _rabbitMqSettings.ExchangeName,
-                    _rabbitMqSettings.NameOfEndpoint)
+                .CreateForSubscriber(_settings.ConnectionString,
+                    _settings.ExchangeName,
+                    _settings.NameOfEndpoint)
                 .MakeDurable();
 
             _subscriber = new RabbitMqSubscriber<Domain.OrderBook>(settings,
@@ -56,7 +56,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
         {
             try
             {
-                _processor.Process(orderBook);
+                await _processor.Process(orderBook);
             }
             catch (Exception ex)
             {

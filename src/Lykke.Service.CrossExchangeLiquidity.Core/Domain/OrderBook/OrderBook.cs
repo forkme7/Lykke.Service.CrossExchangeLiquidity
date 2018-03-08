@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
 {
-    public sealed class OrderBook
+    public sealed class OrderBook : IOrderBook
     {
         [JsonProperty("source")]
         public string Source { get; }
@@ -17,12 +16,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
         public DateTime Timestamp { get; }
 
         [JsonProperty("asks")]
-        public IReadOnlyCollection<VolumePrice> Asks { get; }
+        public IEnumerable<VolumePrice> Asks { get; }
 
         [JsonProperty("bids")]
-        public IReadOnlyCollection<VolumePrice> Bids { get; }
+        public IEnumerable<VolumePrice> Bids { get; }
 
-        public OrderBook(string source, string assetPairId, IReadOnlyCollection<VolumePrice> bids, IReadOnlyCollection<VolumePrice> asks, DateTime timestamp)
+        public OrderBook(string source, 
+            string assetPairId, 
+            IEnumerable<VolumePrice> bids, 
+            IEnumerable<VolumePrice> asks, 
+            DateTime timestamp)
         {
             Source = source;
             AssetPairId = assetPairId;
