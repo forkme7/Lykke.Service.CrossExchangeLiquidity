@@ -19,6 +19,8 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         private readonly IMatchingEngineClient _matchingEngineClient;
         private readonly ILykkeExchangeSettings _settings;
         private DateTime _lastPlace = DateTime.MinValue;
+        private MultiLimitOrderModel _lastModel = null;
+        private readonly MultiLimitOrderModelEqualityComparer _multiLimitOrderModelEqualityComparer;
 
         public MatchingEngineTrader(ILog log,
             ILykkeExchangeSettings settings, 
@@ -29,15 +31,18 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             _settings = settings;
             _matchingEngineClient = matchingEngineClient;
             _filter = filter;
+            _multiLimitOrderModelEqualityComparer = new MultiLimitOrderModelEqualityComparer();
         }
 
         public async Task PlaceOrders(IOrderBook orderBook)
         {
-            if(!CheckTimeSpan())
+            MultiLimitOrderModel model = CreateMultiLimitOrderModel(orderBook);
+            if(!IsModelChanged(model))
                 return;
 
-            MultiLimitOrderModel model = CreateMultiLimitOrderModel(orderBook);
-            //todo: check model changes
+            if (!IsBreakOver())
+                return;
+
             //todo: add logging
             if (model.Orders.All(o=>o.OrderAction == OrderAction.Buy))
             {
@@ -51,7 +56,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             await _matchingEngineClient.PlaceMultiLimitOrderAsync(model);
         }
 
-        private bool CheckTimeSpan()
+        private bool IsBreakOver()
         {
             var result = DateTime.Now - _lastPlace > _settings.TimeSpan;
             if (result)
@@ -59,6 +64,15 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
                 _lastPlace = DateTime.Now;
             }
             return result;
+        }
+
+        private bool IsModelChanged(MultiLimitOrderModel model)
+        {
+            if (_multiLimitOrderModelEqualityComparer.Equals(model, _lastModel))
+                return false;
+
+            _lastModel = model;
+            return true;
         }
 
         private MultiLimitOrderModel CreateMultiLimitOrderModel(IOrderBook orderBook)
