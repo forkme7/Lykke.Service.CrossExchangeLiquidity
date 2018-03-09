@@ -12,7 +12,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
 
         public IEnumerable<VolumePrice> Asks => OrderBooks.Values.SelectMany(b=>b.Asks).OrderBy(p=>p.Price);
 
-        public IEnumerable<VolumePrice> Bids => OrderBooks.Values.SelectMany(b => b.Bids).OrderBy(p => p.Price);
+        public IEnumerable<VolumePrice> Bids => OrderBooks.Values.SelectMany(b => b.Bids).OrderByDescending(p => p.Price);
 
         public CompositeOrderBook(string assetPairId)
         {
@@ -28,6 +28,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
             }
 
             OrderBooks[source] = orderBook;
+        }
+
+        public override string ToString()
+        {
+            return GetType().Name + " " +
+                   $"AssetPairId = {AssetPairId} " +
+                   $"TopAsk = {Asks.FirstOrDefault()} " +
+                   $"TopBids = {Bids.FirstOrDefault()}";
         }
     }
 }
