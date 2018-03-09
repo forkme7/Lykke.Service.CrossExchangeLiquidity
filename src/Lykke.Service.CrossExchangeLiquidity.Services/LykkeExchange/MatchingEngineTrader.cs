@@ -88,12 +88,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             var orders = new List<MultiOrderItemModel>();
             foreach (VolumePrice volumePrice in _filter.GetAsks(orderBook))
             {
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, volumePrice));
+                orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, volumePrice));
             }
 
             foreach (VolumePrice volumePrice in _filter.GetBids(orderBook))
             {
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, volumePrice));
+                orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, volumePrice));
             }
 
             model.Orders = orders;
