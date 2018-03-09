@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
+namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
     public class MultiLimitOrderModelEqualityComparer : IEqualityComparer<MultiLimitOrderModel>
     {

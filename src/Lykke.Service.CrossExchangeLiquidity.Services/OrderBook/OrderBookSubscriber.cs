@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Common;
@@ -35,6 +36,8 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
 
         public void Start()
         {
+            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, ">>");
+
             var settings = RabbitMqSubscriptionSettings
                 .CreateForSubscriber(_settings.ConnectionString,
                     _settings.ExchangeName,
@@ -50,6 +53,8 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
                 .CreateDefaultBinding()
                 .SetLogger(_log)
                 .Start();
+
+            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, "<< RabbitMq subscriber is starting.");
         }
 
         private async Task ProcessMessageAsync(Domain.OrderBook orderBook)
@@ -72,7 +77,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
 
         public void Stop()
         {
+            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, ">>");
+
             _subscriber?.Stop();
+
+            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, "<< RabbitMq subscriber is stopping.");
         }
     }
 }

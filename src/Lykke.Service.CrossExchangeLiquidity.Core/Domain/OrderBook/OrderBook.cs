@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
 {
@@ -32,6 +33,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
             Asks = asks;
             Bids = bids;
             Timestamp = timestamp;
+        }
+
+        public override string ToString()
+        {
+            return GetType().Name + " " + 
+                   $"Source = {Source} " +
+                   $"AssetPairId = {AssetPairId} " +
+                   $"Timestamp = {Timestamp} " +
+                   $"TopAsk = {Asks.FirstOrDefault()} " +
+                   $"TopBids = {Bids.FirstOrDefault()}";
         }
     }
 }

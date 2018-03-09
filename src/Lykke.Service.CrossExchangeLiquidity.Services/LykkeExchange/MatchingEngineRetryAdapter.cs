@@ -3,6 +3,7 @@ using Lykke.MatchingEngine.Connector.Abstractions.Models;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
