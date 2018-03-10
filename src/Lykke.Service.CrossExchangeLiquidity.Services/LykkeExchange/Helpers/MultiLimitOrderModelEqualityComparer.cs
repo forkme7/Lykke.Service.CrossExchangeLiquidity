@@ -18,10 +18,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
             if (x == null || y == null)
                 return false;
 
-            if(! x.AssetId.Equals(y.AssetId))
+            if(! string.Equals(x.AssetId,y.AssetId, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            if (!x.ClientId.Equals(y.ClientId))
+            if (!string.Equals(x.ClientId, y.ClientId, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             foreach (MultiOrderItemModel multiOrderItemModel in x.Orders)

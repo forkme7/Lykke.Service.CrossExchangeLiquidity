@@ -1,4 +1,6 @@
-﻿namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+
+namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 {
     public class CrossExchangeLiquiditySettings
     {

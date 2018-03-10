@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings
 {
     public class LykkeExchangeSettings: ClientIdSettings, ILykkeExchangeSettings
     {

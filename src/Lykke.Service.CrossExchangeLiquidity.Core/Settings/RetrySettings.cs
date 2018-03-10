@@ -1,7 +1,6 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
-using System;
+﻿using System;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings
 {
     public class RetrySettings : IRetrySettings
     {
