@@ -64,7 +64,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
             var fabric = new MatchingEngineTraderFabric();
             MatchingEngineTrader trader = fabric.CreateMatchingEngineTrader();
             IOrderBook orderBook1 = CreateOrderBook1();
-            IOrderBook orderBook2 = CreateOrderBook2();
 
             await trader.PlaceOrders(orderBook1);
 
