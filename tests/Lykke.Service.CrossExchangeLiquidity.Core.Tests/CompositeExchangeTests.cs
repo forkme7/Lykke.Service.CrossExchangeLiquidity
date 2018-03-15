@@ -19,7 +19,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 new VolumePrice[0],
                 DateTime.Now);
 
-            compositeExchange.AddOrUpdateOrderBook(orderBook.Source, orderBook);
+            compositeExchange.AddOrUpdateOrderBook(orderBook);
 
             var resultOrderBook = compositeExchange[AssetPairId];
             Assert.NotNull(resultOrderBook);

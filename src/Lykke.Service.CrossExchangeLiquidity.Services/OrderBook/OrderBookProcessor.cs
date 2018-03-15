@@ -7,7 +7,7 @@ using Domain = Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
 {
-    public class OrderBookProcessor : IOrderBookProcessor
+    public class OrderBookProcessor : IMessageProcessor<Domain.OrderBook>
     {
         private readonly ILog _log;
         private readonly IOrderBookFilter _orderBookFilter;
@@ -25,7 +25,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
             _trader = trader;
         }
 
-        public async Task Process(Domain.OrderBook orderBook)
+        public async Task ProcessAsync(Domain.OrderBook orderBook)
         {
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, $">> {orderBook}");
 
@@ -35,12 +35,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
                 return;
             }
 
-            _compositeExchange.AddOrUpdateOrderBook(orderBook.Source, orderBook);
+            _compositeExchange.AddOrUpdateOrderBook(orderBook);
             _compositeExchange.TryGetValue(orderBook.AssetPairId, out var compositeOrderBook);
 
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, $"Composite order book is {orderBook}");
 
-            await _trader.PlaceOrders(compositeOrderBook);
+            await _trader.PlaceOrdersAsync(compositeOrderBook);
 
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, "<<");
         }

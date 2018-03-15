@@ -1,17 +1,28 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AzureStorage.Tables;
 using Common.Log;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
 using Lykke.MatchingEngine.Connector.Services;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.Service.Assets.Client;
+using Lykke.Service.Balances.Client;
+using Lykke.Service.CrossExchangeLiquidity.AzureRepositories.AssetBalance;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.TradePart;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.ExternalExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services;
+using Lykke.Service.CrossExchangeLiquidity.Services.ExternalExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Services.RabbitMQ;
 using Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings;
 using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,52 +67,126 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                 .As<IShutdownManager>();
 
             // TODO: Add your dependencies here
-            RegisterLykkeExchange(builder);
+            RegisterExternalBalanceService(builder);
+            RegisterAssetPairDictionary(builder);
+            RegisterLykkeBalanceService(builder);
+            RegisterLimitOrderMessageSubscriber(builder);
+            RegisterMatchingEngine(builder);
             RegisterOrderBook(builder);
 
             builder.Populate(_services);
         }
 
+        private void RegisterExternalBalanceService(ContainerBuilder builder)
+        {
+            builder.RegisterInstance(_settings.CurrentValue.ExternalBalance)
+                .As<IExternalBalanceServicesSettings>();
+
+            builder.RegisterInstance<IAssetBalanceRepository>(new AssetBalanceRepository(
+                AzureTableStorage<AssetBalanceEntity>.Create(_settings.ConnectionString(x => x.Db.EntitiesConnString),
+                    _settings.CurrentValue.Db.AssetBalanceTableName, _log)));
+
+            builder.RegisterType<ExternalBalanceService>()
+                .As<IExternalBalanceService>()
+                .AutoActivate()
+                .SingleInstance();
+        }
+        private void RegisterAssetPairDictionary(ContainerBuilder builder)
+        {
+            builder.RegisterInstance(new AssetsService(new Uri(_settings.CurrentValue.AssetsServiceUrl)))
+                .As<IAssetsService>()
+                .SingleInstance();
+
+            builder.RegisterType<AssetPairDictionary>()
+                .As<IAssetPairDictionary>()
+                .SingleInstance();
+        }
+
+        private void RegisterLykkeBalanceService(ContainerBuilder builder)
+        {
+            builder.RegisterBalancesClient(_settings.CurrentValue.BalancesServiceUrl, _log);
+
+            builder.RegisterInstance(_settings.CurrentValue.LykkeBalance)
+                .As<ILykkeBalanceServiceSettings>();
+
+            builder.RegisterType<LykkeBalanceService>()
+                .As<ILykkeBalanceService>()
+                .AutoActivate()
+                .SingleInstance();
+        }
+
+        private void RegisterLimitOrderMessageSubscriber(ContainerBuilder builder)
+        {            
+            builder.RegisterType<ClientIdTradePartFilter>()
+                .As<ITradePartFilter>()
+                .WithParameter("settings", _settings.CurrentValue.MatchingEngineTrader);
+
+            builder.RegisterType<LimitOrderMessageProcessor>()
+                .As<IMessageProcessor<LimitOrderMessage>>();            
+
+            builder.RegisterType<Deserializer<LimitOrderMessage>>()
+                .As<IMessageDeserializer<LimitOrderMessage>>();
+
+            builder.RegisterType<Subscriber<LimitOrderMessage>>()
+                .As<IStartable>()
+                .WithParameter("settings", _settings.CurrentValue.MatchingEngineTrader.LimitOrders)
+                .AutoActivate()
+                .SingleInstance();
+        }
+
+        private void RegisterMatchingEngine(ContainerBuilder builder)
+        {
+            //MatchingEngineRetryAdapter
+            var socketLog = new SocketLogDynamic(i => { }, str => _log.WriteInfo("MatchingEngineClient", "", str));
+            var tcpMatchingEngineClient = new TcpMatchingEngineClient(_settings.CurrentValue.MatchingEngineTrader.IpEndpoint.GetClientIpEndPoint(),
+                socketLog);
+            tcpMatchingEngineClient.Start();
+
+            builder.RegisterInstance(_settings.CurrentValue.MatchingEngineTrader.Retry)
+                .As<IMatchingEngineRetryAdapterSettings>();
+
+            builder.RegisterType<MatchingEngineRetryAdapter>()
+                .As<IMatchingEngineClient>()
+                .WithParameter("matchingEngineClient", tcpMatchingEngineClient);
+
+            //MatchingEngineTrader
+            builder.RegisterType<ExternalBalanceVolumePriceFilter>();
+            builder.RegisterType<LykkeBalanceVolumePriceFilter>();
+            builder.Register(c => new CompositeVolumePriceFilter(new IVolumePriceFilter[]
+                {
+                    c.Resolve<ExternalBalanceVolumePriceFilter>(),
+                    c.Resolve<LykkeBalanceVolumePriceFilter>(),
+                    new TopVolumePriceFilter(_settings.CurrentValue.MatchingEngineTrader.Filter)
+                }))
+                .As<IVolumePriceFilter>();
+
+            builder.RegisterInstance(_settings.CurrentValue.MatchingEngineTrader)
+                .As<IMatchingEngineTraderSettings>();
+
+            builder.RegisterType<MatchingEngineTrader>()
+                .As<ITrader>();
+        }
+
         private void RegisterOrderBook(ContainerBuilder builder)
         {
-            builder.RegisterInstance(new CompositeFilter(new[]
-                    {new SourcesAssetPairIdsFilter(_settings.CurrentValue.OrderBook.Filter)}))
+            builder.RegisterInstance(new CompositeOrderBookFilter(new[]
+                    {new SourcesAssetPairIdsOrderBookFilter(_settings.CurrentValue.OrderBook.Filter)}))
                 .As<IOrderBookFilter>();
 
             builder.RegisterType<CompositeExchange>()
                 .As<ICompositeExchange>();
 
             builder.RegisterType<OrderBookProcessor>()
-                .As<IOrderBookProcessor>();
+                .As<IMessageProcessor<OrderBook>>();
 
-            builder.RegisterType<OrderBookDeserializer>()
+            builder.RegisterType<Deserializer<OrderBook>>()
                 .As<IMessageDeserializer<OrderBook>>();
 
-            builder.RegisterType<OrderBookSubscriber>()
+            builder.RegisterType<Subscriber<OrderBook>>()
                 .As<IStartable>()
                 .WithParameter("settings", _settings.CurrentValue.OrderBook.Source)
                 .AutoActivate()
                 .SingleInstance();
-        }
-
-        private void RegisterLykkeExchange(ContainerBuilder builder)
-        {
-            var socketLog = new SocketLogDynamic(i => { }, str => _log.WriteInfo("MatchingEngineClient", "", str));
-            var tcpMatchingEngineClient = new TcpMatchingEngineClient(_settings.CurrentValue.LykkeExchange.IpEndpoint.GetClientIpEndPoint(), 
-                socketLog);
-            tcpMatchingEngineClient.Start();
-
-            builder.RegisterType<MatchingEngineRetryAdapter>()
-                .As<IMatchingEngineClient>()
-                .WithParameter("settings", _settings.CurrentValue.LykkeExchange.Retry)
-                .WithParameter("matchingEngineClient", tcpMatchingEngineClient);
-
-            builder.RegisterInstance(new TopFilter(_settings.CurrentValue.LykkeExchange.Filter))
-                .As<ITradeFilter>();
-
-            builder.RegisterType<MatchingEngineTrader>()
-                .As<ITrader>()
-                .WithParameter("settings", _settings.CurrentValue.LykkeExchange);
         }
     }
 }

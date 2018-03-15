@@ -2,9 +2,9 @@
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers;
 using System;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
     {
         private readonly ILog _log;
         private readonly IMatchingEngineClient _matchingEngineClient;
-        private readonly ILykkeExchangeSettings _settings;
+        private readonly IMatchingEngineTraderSettings _settings;
         private DateTime _lastPlace = DateTime.MinValue;
         private MultiLimitOrderModel _lastModel = null;
         private readonly MultiLimitOrderModelHelper _multiLimitOrderModelHelper;
@@ -25,9 +25,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         private readonly MultiLimitOrderModelEqualityComparer _multiLimitOrderModelEqualityComparer;
 
         public MatchingEngineTrader(ILog log,
-            ILykkeExchangeSettings settings,
+            IMatchingEngineTraderSettings settings,
             IMatchingEngineClient matchingEngineClient,
-            ITradeFilter filter)
+            IVolumePriceFilter filter)
         {
             _log = log;
             _settings = settings;
@@ -37,7 +37,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             _multiLimitOrderModelEqualityComparer = new MultiLimitOrderModelEqualityComparer();
         }
 
-        public async Task PlaceOrders(IOrderBook orderBook)
+        public async Task PlaceOrdersAsync(ICompositeOrderBook orderBook)
         {
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, $">> {orderBook}");
 

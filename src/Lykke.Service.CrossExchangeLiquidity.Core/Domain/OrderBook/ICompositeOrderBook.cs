@@ -1,7 +1,15 @@
-﻿namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
+﻿using System.Collections.Generic;
+
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
 {
-    public interface ICompositeOrderBook : IOrderBook
+    public interface ICompositeOrderBook
     {
-        void AddOrUpdateOrderBook(string source, IOrderBook orderBook);
+        string AssetPairId { get; }
+
+        IEnumerable<SourcedVolumePrice> Asks { get; }
+
+        IEnumerable<SourcedVolumePrice> Bids { get; }
+
+        void AddOrUpdateOrderBook(IOrderBook orderBook);
     }
 }

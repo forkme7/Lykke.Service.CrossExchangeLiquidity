@@ -3,16 +3,16 @@ using System;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.OrderBook
 {
-    public class SourceFilter : IOrderBookFilter
+    public class SourceOrderBookFilter : IOrderBookFilter
     {
         private readonly ISourceSettings _settings;
 
-        public SourceFilter(ISourceSettings settings)
+        public SourceOrderBookFilter(ISourceSettings settings)
         {
             _settings = settings;
         }
 
-        public bool IsAccepted(Domain.OrderBook.OrderBook orderBook)
+        public bool IsAccepted(Domain.OrderBook.IOrderBook orderBook)
         {
             return string.Equals(orderBook.Source, _settings.Source, StringComparison.OrdinalIgnoreCase);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 {

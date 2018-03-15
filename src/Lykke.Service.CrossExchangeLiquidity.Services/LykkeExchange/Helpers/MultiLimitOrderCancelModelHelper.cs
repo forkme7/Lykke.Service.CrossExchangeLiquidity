@@ -3,7 +3,7 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
-    public class MultiLimitOrderCancelModelHelper : MatchingEngineClientHelper
+    internal class MultiLimitOrderCancelModelHelper : MatchingEngineClientHelper
     {
         private readonly IClientIdSettings _settings;
 

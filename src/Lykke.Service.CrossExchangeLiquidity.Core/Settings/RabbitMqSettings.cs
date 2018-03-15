@@ -1,6 +1,4 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
-
-namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
+﻿namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings
 {
     public class RabbitMqSettings : IRabbitMqSettings
     {

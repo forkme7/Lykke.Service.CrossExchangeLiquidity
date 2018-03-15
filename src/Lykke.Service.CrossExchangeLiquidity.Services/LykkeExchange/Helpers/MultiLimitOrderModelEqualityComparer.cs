@@ -6,7 +6,7 @@ using Lykke.MatchingEngine.Connector.Abstractions.Models;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
-    public class MultiLimitOrderModelEqualityComparer : IEqualityComparer<MultiLimitOrderModel>
+    internal class MultiLimitOrderModelEqualityComparer : IEqualityComparer<MultiLimitOrderModel>
     {
         private readonly MultiOrderItemModelEqualityComparer _multiOrderItemModelEqualityComparer = new MultiOrderItemModelEqualityComparer();
 

@@ -35,7 +35,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 DateTime.Now);
 
             Assert.Throws<ArgumentOutOfRangeException>(() =>
-                compositeOrderBook.AddOrUpdateOrderBook(orderBook.Source, orderBook));
+                compositeOrderBook.AddOrUpdateOrderBook(orderBook));
         }
 
         [Fact]
@@ -64,13 +64,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 new VolumePrice[0],
                 DateTime.Now);
 
-            compositeOrderBook.AddOrUpdateOrderBook(orderBook1.Source, orderBook1);
-            compositeOrderBook.AddOrUpdateOrderBook(orderBook2.Source, orderBook2);
+            compositeOrderBook.AddOrUpdateOrderBook(orderBook1);
+            compositeOrderBook.AddOrUpdateOrderBook(orderBook2);
 
             var resultVolumePrices = compositeOrderBook.Asks.ToArray();
             for (int i = 0; i < resultVolumePrices.Length; i++)
             {
-                Assert.Equal(resultVolumePrices[i], volumePrices[i]);
+                var resultVolumePrice = resultVolumePrices[i];
+                var volumePrice = volumePrices[i];
+                Assert.Equal(resultVolumePrice.Price, volumePrice.Price);
+                Assert.Equal(resultVolumePrice.Volume, volumePrice.Volume);
             }
         }
 
@@ -100,13 +103,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 },
                 DateTime.Now);
 
-            compositeOrderBook.AddOrUpdateOrderBook(orderBook1.Source, orderBook1);
-            compositeOrderBook.AddOrUpdateOrderBook(orderBook2.Source, orderBook2);
+            compositeOrderBook.AddOrUpdateOrderBook(orderBook1);
+            compositeOrderBook.AddOrUpdateOrderBook(orderBook2);
 
             var resultVolumePrices = compositeOrderBook.Bids.ToArray();
             for (int i = 0; i < resultVolumePrices.Length; i++)
             {
-                Assert.Equal(resultVolumePrices[i], volumePrices[i]);
+                var resultVolumePrice = resultVolumePrices[i];
+                var volumePrice = volumePrices[i];
+                Assert.Equal(resultVolumePrice.Price, volumePrice.Price);
+                Assert.Equal(resultVolumePrice.Volume, volumePrice.Volume);
             }
         }
     }

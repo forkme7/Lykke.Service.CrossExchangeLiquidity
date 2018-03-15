@@ -2,6 +2,6 @@
 {
     public interface IOrderBookFilter
     {
-        bool IsAccepted(Domain.OrderBook.OrderBook orderBook);
+        bool IsAccepted(Domain.OrderBook.IOrderBook orderBook);
     }
 }

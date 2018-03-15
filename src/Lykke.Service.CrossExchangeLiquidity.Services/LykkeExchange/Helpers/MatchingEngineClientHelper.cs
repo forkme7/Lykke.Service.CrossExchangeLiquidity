@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
-    public class MatchingEngineClientHelper
+    internal class MatchingEngineClientHelper
     {
         public string CreateRequestId()
         {

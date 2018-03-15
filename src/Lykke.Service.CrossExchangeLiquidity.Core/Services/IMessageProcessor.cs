@@ -6,8 +6,8 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Services
 {
-    public interface IOrderBookProcessor
+    public interface IMessageProcessor<T>
     {
-        Task Process(OrderBook orderBook);
+        Task ProcessAsync(T message);
     }
 }

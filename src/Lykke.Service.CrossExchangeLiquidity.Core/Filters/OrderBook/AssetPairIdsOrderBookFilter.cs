@@ -3,16 +3,16 @@ using System.Linq;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.OrderBook
 {
-    public class AssetPairIdsFilter : IOrderBookFilter
+    public class AssetPairIdsOrderBookFilter : IOrderBookFilter
     {
         private  readonly IAssetPairIdsSettings _settings;
 
-        public AssetPairIdsFilter(IAssetPairIdsSettings settings)
+        public AssetPairIdsOrderBookFilter(IAssetPairIdsSettings settings)
         {
             _settings = settings;
         }
 
-        public bool IsAccepted(Domain.OrderBook.OrderBook orderBook)
+        public bool IsAccepted(Domain.OrderBook.IOrderBook orderBook)
         {
             return _settings.AssetPairIds.Any(p => string.Equals(p, orderBook.AssetPairId));
         }

@@ -1,24 +1,24 @@
 ﻿using Lykke.MatchingEngine.Connector.Abstractions.Models;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using System.Collections.Generic;
 using System.Text;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeExchange;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
-    public class MultiLimitOrderModelHelper : MatchingEngineClientHelper
+    internal class MultiLimitOrderModelHelper : MatchingEngineClientHelper
     {
         private readonly IClientIdSettings _settings;
-        private readonly ITradeFilter _filter;
+        private readonly IVolumePriceFilter _filter;
 
-        public MultiLimitOrderModelHelper(IClientIdSettings settings, ITradeFilter filter)
+        public MultiLimitOrderModelHelper(IClientIdSettings settings, IVolumePriceFilter filter)
         {
             _settings = settings;
             _filter = filter;
         }
 
-        public MultiLimitOrderModel CreateMultiLimitOrderModel(IOrderBook orderBook)
+        public MultiLimitOrderModel CreateMultiLimitOrderModel(ICompositeOrderBook orderBook)
         {
             var model = new MultiLimitOrderModel()
             {
@@ -29,12 +29,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
             };
 
             var orders = new List<MultiOrderItemModel>();
-            foreach (VolumePrice volumePrice in _filter.GetAsks(orderBook))
+            foreach (var volumePrice in _filter.GetAsks(orderBook.AssetPairId, orderBook.Asks))
             {
                 orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, volumePrice));
             }
 
-            foreach (VolumePrice volumePrice in _filter.GetBids(orderBook))
+            foreach (var volumePrice in _filter.GetBids(orderBook.AssetPairId, orderBook.Bids))
             {
                 orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, volumePrice));
             }
@@ -44,7 +44,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
             return model;
         }
 
-        public MultiOrderItemModel CreateMultiOrderItemModel(OrderAction orderAction, VolumePrice volumePrice)
+        public MultiOrderItemModel CreateMultiOrderItemModel(OrderAction orderAction, SourcedVolumePrice volumePrice)
         {
             return new MultiOrderItemModel()
             {

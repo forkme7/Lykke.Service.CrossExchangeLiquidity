@@ -12,9 +12,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         private const string Source2 = "otherex";
         private const string AssetPairId = "ETHBTC";
 
-        private SourceFilter GetFilter()
+        private SourceOrderBookFilter GetFilter()
         {
-            return new SourceFilter(new SourceSettings() { Source = Source1 });
+            return new SourceOrderBookFilter(new SourceSettings() { Source = Source1 });
         }
 
         private OrderBook GetOrderBook(string source)
@@ -25,7 +25,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         [Fact]
         public void IsAccepted_WhenSourcesEqual_RetrunsTrue()
         {
-            SourceFilter filter = GetFilter();
+            SourceOrderBookFilter filter = GetFilter();
             OrderBook orderBook = GetOrderBook(Source1);
 
             bool result = filter.IsAccepted(orderBook);
@@ -36,7 +36,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         [Fact]
         public void IsAccepted_WhenSourcesDoNotEqual_RetrunsFalse()
         {
-            SourceFilter filter = GetFilter();
+            SourceOrderBookFilter filter = GetFilter();
             OrderBook orderBook = GetOrderBook(Source2);
 
             bool result = filter.IsAccepted(orderBook);

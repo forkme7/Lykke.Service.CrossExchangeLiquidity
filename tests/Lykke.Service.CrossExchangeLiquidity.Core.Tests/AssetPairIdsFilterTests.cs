@@ -13,9 +13,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         private const string AssetPairId2 = "USDBTC";
         private const string AssetPairId3 = "EURBTC";
 
-        private AssetPairIdsFilter GetFilter()
+        private AssetPairIdsOrderBookFilter GetFilter()
         {
-            return new AssetPairIdsFilter(
+            return new AssetPairIdsOrderBookFilter(
                 new AssetPairIdsSettings() {AssetPairIds = new[] {AssetPairId1, AssetPairId2}});
         }
 
@@ -27,7 +27,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         [Fact]
         public void IsAccepted_WhenAssetPairIdsEqual_RetrunsTrue()
         {
-            AssetPairIdsFilter filter = GetFilter();
+            AssetPairIdsOrderBookFilter filter = GetFilter();
             OrderBook orderBook = GetOrderBook(AssetPairId1);
 
             bool result = filter.IsAccepted(orderBook);
@@ -38,7 +38,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         [Fact]
         public void IsAccepted_WhenAssetPairIdsDoNotEqual_RetrunsFalse()
         {
-            AssetPairIdsFilter filter = GetFilter();
+            AssetPairIdsOrderBookFilter filter = GetFilter();
             OrderBook orderBook = GetOrderBook(AssetPairId3);
 
             bool result = filter.IsAccepted(orderBook);

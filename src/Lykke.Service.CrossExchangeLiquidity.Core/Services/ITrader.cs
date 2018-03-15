@@ -5,6 +5,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Services
 {
     public interface ITrader
     {
-        Task PlaceOrders(IOrderBook orderBook);
+        Task PlaceOrdersAsync(ICompositeOrderBook orderBook);
     }
 }

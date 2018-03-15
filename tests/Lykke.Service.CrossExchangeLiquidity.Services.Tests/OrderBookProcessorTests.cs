@@ -25,7 +25,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
             OrderBook orderBook = CreateOrderBook();
 
-            await orderBookProcessor.Process(orderBook);
+            await orderBookProcessor.ProcessAsync(orderBook);
 
             Assert.True(fabric.CompositeExchange.ContainsKey(orderBook.AssetPairId));
         }
@@ -38,7 +38,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
             OrderBook orderBook = CreateOrderBook();
 
-            await orderBookProcessor.Process(orderBook);
+            await orderBookProcessor.ProcessAsync(orderBook);
 
             Assert.False(fabric.CompositeExchange.ContainsKey(orderBook.AssetPairId));
         }
@@ -51,9 +51,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
             OrderBook orderBook = CreateOrderBook();
 
-            await orderBookProcessor.Process(orderBook);
+            await orderBookProcessor.ProcessAsync(orderBook);
 
-            fabric.Trader.Verify(t=>t.PlaceOrders(It.IsAny<IOrderBook>()), Times.Once);
+            fabric.Trader.Verify(t=>t.PlaceOrdersAsync(It.IsAny<ICompositeOrderBook>()), Times.Once);
         }
 
         [Fact]
@@ -64,9 +64,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
             OrderBook orderBook = CreateOrderBook();
 
-            await orderBookProcessor.Process(orderBook);
+            await orderBookProcessor.ProcessAsync(orderBook);
 
-            fabric.Trader.Verify(t => t.PlaceOrders(It.IsAny<IOrderBook>()), Times.Never);
+            fabric.Trader.Verify(t => t.PlaceOrdersAsync(It.IsAny<ICompositeOrderBook>()), Times.Never);
         }
     }
 }

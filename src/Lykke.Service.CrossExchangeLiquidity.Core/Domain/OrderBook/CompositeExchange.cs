@@ -4,14 +4,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook
 {
     public class CompositeExchange : Dictionary<string, ICompositeOrderBook>, ICompositeExchange
     {
-        public void AddOrUpdateOrderBook(string source, IOrderBook orderBook)
+        public void AddOrUpdateOrderBook(IOrderBook orderBook)
         {
             if (!TryGetValue(orderBook.AssetPairId, out var compositeOrderBook))
             {
                 compositeOrderBook = new CompositeOrderBook(orderBook.AssetPairId);
                 this[orderBook.AssetPairId] = compositeOrderBook;
             }
-            compositeOrderBook.AddOrUpdateOrderBook(source, orderBook);
+            compositeOrderBook.AddOrUpdateOrderBook(orderBook);
         }
     }
 }

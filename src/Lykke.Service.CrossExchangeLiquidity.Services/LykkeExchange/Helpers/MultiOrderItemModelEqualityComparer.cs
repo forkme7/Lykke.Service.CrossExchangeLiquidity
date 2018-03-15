@@ -5,7 +5,7 @@ using Lykke.MatchingEngine.Connector.Abstractions.Models;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
-    public class MultiOrderItemModelEqualityComparer : IEqualityComparer<MultiOrderItemModel>
+    internal class MultiOrderItemModelEqualityComparer : IEqualityComparer<MultiOrderItemModel>
     {
         public bool Equals(MultiOrderItemModel x, MultiOrderItemModel y)
         {

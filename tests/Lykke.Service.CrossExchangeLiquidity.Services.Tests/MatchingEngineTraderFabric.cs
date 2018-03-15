@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Common.Log;
+﻿using Common.Log;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange;
 using Moq;
+using System;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 {
     public class MatchingEngineTraderFabric
     {
         public Mock<ILog> Log { get; set; }
-        public LykkeExchangeSettings  Settings { get; set; }
+        public MatchingEngineTraderSettings  Settings { get; set; }
         public Mock<IMatchingEngineClient> MatchingEngineClient { get; set; }
-        public ITradeFilter Filter { get; set; }
+        public IVolumePriceFilter Filter { get; set; }
 
         public MatchingEngineTraderFabric()
         {
             Log = new Mock<ILog>();
-            Settings = new LykkeExchangeSettings(){TimeSpan = new TimeSpan(0,0,0,1), Filter = new CountSettings() { Count = 1 } };
+            Settings = new MatchingEngineTraderSettings(){TimeSpan = new TimeSpan(0,0,0,1), Filter = new CountSettings() { Count = 1 } };
             MatchingEngineClient = new Mock<IMatchingEngineClient>();
-            Filter = new TopFilter(Settings.Filter);
+            Filter = new TopVolumePriceFilter(Settings.Filter);
         }
 
         public MatchingEngineTrader CreateMatchingEngineTrader()

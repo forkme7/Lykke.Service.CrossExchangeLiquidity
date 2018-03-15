@@ -4,6 +4,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings
 {
     public interface IAssetPairIdsSettings
     {
-        IReadOnlyCollection<string> AssetPairIds { get; set; }
+        IReadOnlyCollection<string> AssetPairIds { get; }
     }
 }

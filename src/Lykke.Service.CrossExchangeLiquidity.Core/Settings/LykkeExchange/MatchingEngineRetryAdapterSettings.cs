@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange
 {
-    public class RetrySettings : IRetrySettings
+    public class MatchingEngineRetryAdapterSettings : IMatchingEngineRetryAdapterSettings
     {
         public int Times { get; set; }
 

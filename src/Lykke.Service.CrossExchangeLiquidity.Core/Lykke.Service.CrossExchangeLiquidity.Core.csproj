@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="4.4.2" />
     <PackageReference Include="Lykke.MatchingEngineConnector" Version="2.2.0" />
+    <PackageReference Include="Lykke.Service.Assets.Client" Version="3.3.2" />
   </ItemGroup>
 
 </Project>

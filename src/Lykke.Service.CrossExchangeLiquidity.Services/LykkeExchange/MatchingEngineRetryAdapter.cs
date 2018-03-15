@@ -1,9 +1,8 @@
 ﻿using Common.Log;
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
@@ -12,10 +11,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
     {
         private readonly ILog _log;
         private readonly IMatchingEngineClient _matchingEngineClient;
-        private readonly IRetrySettings _settings;
+        private readonly IMatchingEngineRetryAdapterSettings _settings;
 
         public MatchingEngineRetryAdapter(IMatchingEngineClient matchingEngineClient,
-            IRetrySettings settings,
+            IMatchingEngineRetryAdapterSettings settings,
             ILog log)
         {
             _matchingEngineClient = matchingEngineClient;
