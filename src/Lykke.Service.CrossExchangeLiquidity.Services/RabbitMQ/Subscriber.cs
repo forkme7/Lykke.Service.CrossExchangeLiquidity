@@ -56,7 +56,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.RabbitMQ
                 .SetLogger(_log)
                 .Start();
 
-            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, "<< RabbitMq subscriber is starting.");
+            _log.WriteInfo(GetType().Name, MethodBase.GetCurrentMethod().Name, $"<< RabbitMq subscriber {typeof(T).Name} is starting.");
         }
 
         private async Task ProcessMessageAsync(T model)
