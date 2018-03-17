@@ -19,34 +19,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         private readonly IBalancesClient _balancesClient;
         private readonly ILykkeBalanceServiceSettings _settings;
         private readonly ConcurrentDictionary<string, decimal> _balances;
-        private readonly IAssetPairDictionary _assetPairDictionary;
-        private string[] _assetIds;
         private Timer _timer;
 
         public LykkeBalanceService(IBalancesClient balancesClient,
-            IAssetPairDictionary assetPairDictionary,
             ILykkeBalanceServiceSettings settings)
         {
             _balancesClient = balancesClient;
-            _assetPairDictionary = assetPairDictionary;
             _settings = settings;
             _balances = new ConcurrentDictionary<string, decimal>();
-        }
-
-        private string[] GetSupportedAssetIds(IEnumerable<string> assetPairIds)
-        {
-            var assetIds = new List<string>();
-            foreach (string assetPairId in assetPairIds)
-            {                
-                if (!_assetPairDictionary.ContainsKey(assetPairId))
-                {
-                    throw new ArgumentOutOfRangeException($"Provided AssetPairId {assetPairId} is not supported by Lykke Exchange.");
-                }
-                AssetPair assetPair = _assetPairDictionary[assetPairId];
-                assetIds.Add(assetPair.BaseAssetId);
-                assetIds.Add(assetPair.QuotingAssetId);
-            }
-            return assetIds.ToArray();
         }
 
         private async Task GetFromServerAsync()
@@ -57,7 +37,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             _balances.Clear();
             foreach (ClientBalanceResponseModel model in response)
             {
-                if (!_assetIds.Contains(model.AssetId))
+                if (!_settings.AssetIds.Contains(model.AssetId))
                 {
                     continue;
                 }
@@ -68,7 +48,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
 
         public async Task AddAssetAsync(string assetId, decimal value)
         {
-            if (!_assetIds.Contains(assetId))
+            if (!_settings.AssetIds.Contains(assetId))
             {
                 throw new ArgumentOutOfRangeException($"Provided assetId {assetId} is not supported by LykkeExchange.");
             }
@@ -86,7 +66,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         public void Start()
         {
             //todo: use StartupManager
-            _assetIds = GetSupportedAssetIds(_settings.AssetPairIds);
             Task.Run(async () => await GetFromServerAsync()).RunSynchronously();
 
             _timer = new Timer(_settings.TimeSpan.TotalMilliseconds);

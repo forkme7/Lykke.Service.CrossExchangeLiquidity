@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalBalance;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.ExternalExchange;
 using System;
@@ -27,7 +27,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.ExternalExchange
         private async Task InitializeAsync()
         {
             _balances = new ReadOnlyDictionary<string, ConcurrentDictionary<string, decimal>>(
-                _settings.ExternalBalances.ToDictionary(p => p.Source,
+                _settings.Balances.ToDictionary(p => p.Source,
                     p => new ConcurrentDictionary<string, decimal>(
                         p.AssetValues.ToDictionary(a => a.Asset, a => a.Value))));
 

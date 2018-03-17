@@ -10,6 +10,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 
         public TimeSpan TimeSpan { get; set; }
 
-        public IReadOnlyCollection<string> AssetPairIds { get; set; }
+        public IReadOnlyCollection<string> AssetIds { get; set; }
     }
 }

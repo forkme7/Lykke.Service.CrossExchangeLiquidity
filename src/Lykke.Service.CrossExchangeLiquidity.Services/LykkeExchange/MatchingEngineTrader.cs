@@ -1,7 +1,7 @@
 ﻿using Common.Log;
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
 {
-    public class MatchingEngineTrader : ITrader
+    public class MatchingEngineTrader : ILykkeTrader
     {
         private readonly ILog _log;
         private readonly IMatchingEngineClient _matchingEngineClient;
@@ -27,12 +27,13 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         public MatchingEngineTrader(ILog log,
             IMatchingEngineTraderSettings settings,
             IMatchingEngineClient matchingEngineClient,
+            IBestPriceEvaluator bestPriceEvaluator,
             IVolumePriceFilter filter)
         {
             _log = log;
             _settings = settings;
             _matchingEngineClient = matchingEngineClient;
-            _multiLimitOrderModelHelper = new MultiLimitOrderModelHelper(settings, filter);
+            _multiLimitOrderModelHelper = new MultiLimitOrderModelHelper(settings, filter, bestPriceEvaluator);
             _multiLimitOrderCancelModelHelper = new MultiLimitOrderCancelModelHelper(settings);
             _multiLimitOrderModelEqualityComparer = new MultiLimitOrderModelEqualityComparer();
         }

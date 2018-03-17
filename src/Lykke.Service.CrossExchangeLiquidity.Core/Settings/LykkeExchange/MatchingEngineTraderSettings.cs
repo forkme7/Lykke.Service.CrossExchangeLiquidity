@@ -8,8 +8,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange
 
         public MatchingEngineRetryAdapterSettings Retry { get; set; }
 
-        public CountSettings Filter { get; set; }
-
         public TimeSpan TimeSpan { get; set; }
 
         public RabbitMqSettings LimitOrders { get; set; }

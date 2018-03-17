@@ -1,4 +1,4 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using MoreLinq;
 using System;
 using System.Linq;
@@ -12,14 +12,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         private const string Source2 = "otherex";
         private const string AssetPairId = "ETHBTC";
 
-        private VolumePrice[] GetVolumePrices()
+        private ExternalVolumePrice[] GetVolumePrices()
         {
             return new[]
             {
-                new VolumePrice(1, 1),
-                new VolumePrice(2, 1),
-                new VolumePrice(3, 1),
-                new VolumePrice(4, 1)
+                new ExternalVolumePrice(1, 1),
+                new ExternalVolumePrice(2, 1),
+                new ExternalVolumePrice(3, 1),
+                new ExternalVolumePrice(4, 1)
             };
         }
 
@@ -28,10 +28,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         {
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
             const string wrongAssetPairId = "BTCUSD";
-            var orderBook = new OrderBook(Source1, 
+            var orderBook = new ExternalOrderBook(Source1, 
                 wrongAssetPairId, 
-                new VolumePrice[0], 
-                new VolumePrice[0],
+                new ExternalVolumePrice[0], 
+                new ExternalVolumePrice[0],
                 DateTime.Now);
 
             Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -44,30 +44,31 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
             var volumePrices = GetVolumePrices().OrderBy(p => p.Price).ToArray();
 
-            var orderBook1 = new OrderBook(Source1,
+            var orderBook1 = new ExternalOrderBook(Source1,
                 AssetPairId,
                 new []
                 {
                     volumePrices[0],
                     volumePrices[2],
                 },
-                new VolumePrice[0],
+                new ExternalVolumePrice[0],
                 DateTime.Now);            
 
-            var orderBook2 = new OrderBook(Source2,
+            var orderBook2 = new ExternalOrderBook(Source2,
                 AssetPairId,
                 new []
                 {
                     volumePrices[1],
                     volumePrices[3],
                 },
-                new VolumePrice[0],
+                new ExternalVolumePrice[0],
                 DateTime.Now);
 
             compositeOrderBook.AddOrUpdateOrderBook(orderBook1);
             compositeOrderBook.AddOrUpdateOrderBook(orderBook2);
 
             var resultVolumePrices = compositeOrderBook.Asks.ToArray();
+            volumePrices = volumePrices.OrderBy(p => p.Price).ToArray();
             for (int i = 0; i < resultVolumePrices.Length; i++)
             {
                 var resultVolumePrice = resultVolumePrices[i];
@@ -81,11 +82,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public void Bids_SortedByPriceDescending()
         {
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
-            var volumePrices = GetVolumePrices().OrderByDescending(p => p.Price).ToArray();
+            var volumePrices = GetVolumePrices().OrderBy(p => p.Price).ToArray();
 
-            var orderBook1 = new OrderBook(Source1,
+            var orderBook1 = new ExternalOrderBook(Source1,
                 AssetPairId,
-                new VolumePrice[0],
+                new ExternalVolumePrice[0],
                 new[]
                 {
                     volumePrices[0],
@@ -93,9 +94,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 },                
                 DateTime.Now);            
 
-            var orderBook2 = new OrderBook(Source2,
+            var orderBook2 = new ExternalOrderBook(Source2,
                 AssetPairId,
-                new VolumePrice[0],
+                new ExternalVolumePrice[0],
                 new[]
                 {
                     volumePrices[1],
@@ -107,6 +108,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             compositeOrderBook.AddOrUpdateOrderBook(orderBook2);
 
             var resultVolumePrices = compositeOrderBook.Bids.ToArray();
+            volumePrices = volumePrices.OrderByDescending(p => p.Price).ToArray();
             for (int i = 0; i < resultVolumePrices.Length; i++)
             {
                 var resultVolumePrice = resultVolumePrices[i];

@@ -5,6 +5,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 {
     public class ExternalBalanceServicesSettings : IExternalBalanceServicesSettings
     {
-        public ExternalBalanceServiceSettings[] ExternalBalances { get; set; }
+        public ExternalBalanceServiceSettings[] Balances { get; set; }
     }
 }

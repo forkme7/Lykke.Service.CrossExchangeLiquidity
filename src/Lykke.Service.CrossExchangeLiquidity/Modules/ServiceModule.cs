@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
@@ -9,10 +10,12 @@ using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Service.Assets.Client;
 using Lykke.Service.Balances.Client;
 using Lykke.Service.CrossExchangeLiquidity.AzureRepositories.AssetBalance;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalExchange;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeExchange;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalBalance;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeTrade;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.ExternalOrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.TradePart;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
@@ -73,6 +76,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
             RegisterLimitOrderMessageSubscriber(builder);
             RegisterMatchingEngine(builder);
             RegisterOrderBook(builder);
+            RegisterLykkeOrderBook(builder);
 
             builder.Populate(_services);
         }
@@ -150,13 +154,20 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                 .WithParameter("matchingEngineClient", tcpMatchingEngineClient);
 
             //MatchingEngineTrader
-            builder.RegisterType<ExternalBalanceVolumePriceFilter>();
-            builder.RegisterType<LykkeBalanceVolumePriceFilter>();
+            //Attention! Keep filters order!
             builder.Register(c => new CompositeVolumePriceFilter(new IVolumePriceFilter[]
                 {
-                    c.Resolve<ExternalBalanceVolumePriceFilter>(),
-                    c.Resolve<LykkeBalanceVolumePriceFilter>(),
-                    new TopVolumePriceFilter(_settings.CurrentValue.MatchingEngineTrader.Filter)
+                    new VolumePartVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.UseVolumePart),
+                        c.Resolve<IAssetPairDictionary>()),
+                    new MinVolumeVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.MinVolume),
+                        c.Resolve<IAssetPairDictionary>()),
+                    new ExternalBalanceVolumePriceFilter(c.Resolve<IExternalBalanceService>(), 
+                        c.Resolve<IAssetPairDictionary>()),
+                    new RiskMarkupVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.RiskMarkup),
+                        c.Resolve<IAssetPairDictionary>()), 
+                    new LykkeBalanceVolumePriceFilter(c.Resolve<ILykkeBalanceService>(),
+                        c.Resolve<IAssetPairDictionary>()),
+                    new TopVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Count)
                 }))
                 .As<IVolumePriceFilter>();
 
@@ -164,27 +175,56 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                 .As<IMatchingEngineTraderSettings>();
 
             builder.RegisterType<MatchingEngineTrader>()
-                .As<ITrader>();
+                .As<ILykkeTrader>();
         }
 
         private void RegisterOrderBook(ContainerBuilder builder)
         {
-            builder.RegisterInstance(new CompositeOrderBookFilter(new[]
-                    {new SourcesAssetPairIdsOrderBookFilter(_settings.CurrentValue.OrderBook.Filter)}))
-                .As<IOrderBookFilter>();
+            builder.RegisterInstance(new CompositeAnyExternalOrderBookFilter(
+                    _settings.CurrentValue.ExternalOrderBook.Filter.Select(p => new SourceAssetPairIdsExternalOrderBookFilter(p))
+                ))
+                .As<IExternalOrderBookFilter>();
 
             builder.RegisterType<CompositeExchange>()
                 .As<ICompositeExchange>();
 
-            builder.RegisterType<OrderBookProcessor>()
-                .As<IMessageProcessor<OrderBook>>();
+            builder.RegisterType<ExternalOrderBookProcessor>()
+                .As<IMessageProcessor<ExternalOrderBook>>();
 
-            builder.RegisterType<Deserializer<OrderBook>>()
-                .As<IMessageDeserializer<OrderBook>>();
+            builder.RegisterType<Deserializer<ExternalOrderBook>>()
+                .As<IMessageDeserializer<ExternalOrderBook>>();
 
-            builder.RegisterType<Subscriber<OrderBook>>()
+            builder.RegisterType<Subscriber<ExternalOrderBook>>()
                 .As<IStartable>()
-                .WithParameter("settings", _settings.CurrentValue.OrderBook.Source)
+                .WithParameter("settings", _settings.CurrentValue.ExternalOrderBook.Source)
+                .AutoActivate()
+                .SingleInstance();
+        }
+
+        private void RegisterLykkeOrderBook(ContainerBuilder builder)
+        {
+            builder.RegisterType<BestPriceEvaluator>()
+                .As<IBestPriceEvaluator>()
+                .WithParameter("assetMinHalfSpread", _settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a => a.AssetId, a => a.MinHalfSpread))
+                .SingleInstance();
+
+            builder.RegisterType<LykkeExchange>()
+                .As<ILykkeExchange>()
+                .WithParameter("settings", _settings.CurrentValue.MatchingEngineTrader)
+                .SingleInstance();
+
+            builder.RegisterInstance(new AssetPairIdsLykkeOrderBookFilter(_settings.CurrentValue.LykkeOrderBook.Filter))
+                .As<ILykkeOrderBookFilter>();
+
+            builder.RegisterType<LykkeOrderBookProcessor>()
+                .As<IMessageProcessor<LykkeOrderBook>>();
+
+            builder.RegisterType<Deserializer<LykkeOrderBook>>()
+                .As<IMessageDeserializer<LykkeOrderBook>>();
+
+            builder.RegisterType<Subscriber<LykkeOrderBook>>()
+                .As<IStartable>()
+                .WithParameter("settings", _settings.CurrentValue.LykkeOrderBook.Source)
                 .AutoActivate()
                 .SingleInstance();
         }

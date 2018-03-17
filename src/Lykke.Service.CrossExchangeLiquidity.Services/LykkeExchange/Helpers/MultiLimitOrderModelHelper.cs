@@ -1,9 +1,11 @@
 ﻿using Lykke.MatchingEngine.Connector.Abstractions.Models;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 {
@@ -11,11 +13,15 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
     {
         private readonly IClientIdSettings _settings;
         private readonly IVolumePriceFilter _filter;
+        private readonly IBestPriceEvaluator _bestPriceEvaluator;
 
-        public MultiLimitOrderModelHelper(IClientIdSettings settings, IVolumePriceFilter filter)
+        public MultiLimitOrderModelHelper(IClientIdSettings settings, 
+                                        IVolumePriceFilter filter,
+                                        IBestPriceEvaluator bestPriceEvaluator)
         {
             _settings = settings;
             _filter = filter;
+            _bestPriceEvaluator = bestPriceEvaluator;
         }
 
         public MultiLimitOrderModel CreateMultiLimitOrderModel(ICompositeOrderBook orderBook)
@@ -29,14 +35,38 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
             };
 
             var orders = new List<MultiOrderItemModel>();
+
+            decimal minAsk = _bestPriceEvaluator.GetMinAsk(orderBook.AssetPairId);
             foreach (var volumePrice in _filter.GetAsks(orderBook.AssetPairId, orderBook.Asks))
             {
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, volumePrice));
+                var modelVolumePrice = new VolumePrice();
+                modelVolumePrice.Volume = volumePrice.Volume;
+                if (volumePrice.Price < minAsk)
+                {
+                    modelVolumePrice.Price = minAsk;
+                }
+                else
+                {
+                    modelVolumePrice.Price = volumePrice.Price;
+                }
+
+                orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, modelVolumePrice));
             }
 
+            decimal maxBid = _bestPriceEvaluator.GetMaxBid(orderBook.AssetPairId);
             foreach (var volumePrice in _filter.GetBids(orderBook.AssetPairId, orderBook.Bids))
             {
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, volumePrice));
+                var modelVolumePrice = new VolumePrice();
+                modelVolumePrice.Volume = volumePrice.Volume;
+                if (volumePrice.Price > maxBid)
+                {
+                    modelVolumePrice.Price = maxBid;
+                }
+                else
+                {
+                    modelVolumePrice.Price = volumePrice.Price;
+                }
+                orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, modelVolumePrice));
             }
 
             model.Orders = orders;
@@ -44,7 +74,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
             return model;
         }
 
-        public MultiOrderItemModel CreateMultiOrderItemModel(OrderAction orderAction, SourcedVolumePrice volumePrice)
+        public MultiOrderItemModel CreateMultiOrderItemModel(OrderAction orderAction, VolumePrice volumePrice)
         {
             return new MultiOrderItemModel()
             {
@@ -112,6 +142,5 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 
             return sb.ToString();
         }
-
     }
 }

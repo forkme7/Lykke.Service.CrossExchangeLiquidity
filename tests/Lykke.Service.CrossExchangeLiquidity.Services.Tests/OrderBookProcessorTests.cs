@@ -1,4 +1,4 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Services.Tests;
 using Moq;
 using System;
@@ -12,18 +12,18 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         private const string Source = "bitfinex";
         private const string AssetPairId = "ETHBTC";
 
-        private OrderBook CreateOrderBook()
+        private ExternalOrderBook CreateOrderBook()
         {
-            return new OrderBook(Source, AssetPairId, new VolumePrice[0], new VolumePrice[0], DateTime.Now);
+            return new ExternalOrderBook(Source, AssetPairId, new ExternalVolumePrice[0], new ExternalVolumePrice[0], DateTime.Now);
         }
 
         [Fact]
         public async Task Process_WhenFilterAccepts_OrderBookIsAddedToExchange()
         {
             var fabric = new OrderBookProcessorFabric();
-            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<OrderBook>())).Returns(true);
+            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<ExternalOrderBook>())).Returns(true);
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
-            OrderBook orderBook = CreateOrderBook();
+            ExternalOrderBook orderBook = CreateOrderBook();
 
             await orderBookProcessor.ProcessAsync(orderBook);
 
@@ -34,9 +34,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public async Task Process_WhenFilterDoesNotAccept_OrderBookIsNotAddedToExchange()
         {
             var fabric = new OrderBookProcessorFabric();
-            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<OrderBook>())).Returns(false);
+            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<ExternalOrderBook>())).Returns(false);
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
-            OrderBook orderBook = CreateOrderBook();
+            ExternalOrderBook orderBook = CreateOrderBook();
 
             await orderBookProcessor.ProcessAsync(orderBook);
 
@@ -47,9 +47,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public async Task Process_WhenFilterAccepts_OrdersArePlaced()
         {
             var fabric = new OrderBookProcessorFabric();
-            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<OrderBook>())).Returns(true);
+            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<ExternalOrderBook>())).Returns(true);
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
-            OrderBook orderBook = CreateOrderBook();
+            ExternalOrderBook orderBook = CreateOrderBook();
 
             await orderBookProcessor.ProcessAsync(orderBook);
 
@@ -60,9 +60,9 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public async Task Process_WhenFilterDoesNotAccept_OrdersAreNotPlaced()
         {
             var fabric = new OrderBookProcessorFabric();
-            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<OrderBook>())).Returns(false);
+            fabric.OrderBookFilter.Setup(f => f.IsAccepted(It.IsAny<ExternalOrderBook>())).Returns(false);
             var orderBookProcessor = fabric.CreateOrderBookProcessor();
-            OrderBook orderBook = CreateOrderBook();
+            ExternalOrderBook orderBook = CreateOrderBook();
 
             await orderBookProcessor.ProcessAsync(orderBook);
 

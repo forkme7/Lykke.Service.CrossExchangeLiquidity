@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Lykke.Service.Assets.Client.Models;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice

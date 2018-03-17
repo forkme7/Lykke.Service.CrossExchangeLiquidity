@@ -6,6 +6,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Settings.ExternalExchange
 {
     public interface IExternalBalanceServicesSettings
     {
-        ExternalBalanceServiceSettings[] ExternalBalances { get; set; }
+        ExternalBalanceServiceSettings[] Balances { get; set; }
     }
 }

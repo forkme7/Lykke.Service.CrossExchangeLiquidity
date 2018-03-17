@@ -8,9 +8,13 @@ namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
     {
         public DbSettings Db { get; set; }
 
-        public OrderBookSettings OrderBook { get; set; }
+        public OrderBookSettings ExternalOrderBook { get; set; }
+
+        public LykkeOrderBookSettings LykkeOrderBook { get; set; }
 
         public MatchingEngineTraderSettings MatchingEngineTrader { get; set; }
+
+        public VolumePriceFilterSettings VolumePriceFilters { get; set; }
 
         [HttpCheck("api/isalive")]
         public string AssetsServiceUrl { get; set; }

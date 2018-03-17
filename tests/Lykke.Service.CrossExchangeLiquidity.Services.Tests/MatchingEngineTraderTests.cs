@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Extensions;
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange;
 using Moq;
 using Xunit;
@@ -70,7 +70,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
             await trader.PlaceOrdersAsync(orderBook1);
 
-            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m=> m.Orders.Count == fabric.Settings.Filter.Count)),
+            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m=> m.Orders.Count == MatchingEngineTraderFabric.Count)),
                 Times.Once);
         }
 

@@ -12,7 +12,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.TradePart
             _settings = settings;
         }
 
-        public bool IsAccepted(Domain.LykkeExchange.TradePart tradePart)
+        public bool IsAccepted(Domain.LykkeTrade.TradePart tradePart)
         {
             return string.Equals(tradePart.ClientId, _settings.ClientId, StringComparison.OrdinalIgnoreCase);
         }

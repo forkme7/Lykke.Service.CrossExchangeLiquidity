@@ -1,4 +1,4 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using System.Collections.Generic;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice

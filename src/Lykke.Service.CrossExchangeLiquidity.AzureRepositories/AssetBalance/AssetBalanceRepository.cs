@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AzureStorage;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalBalance;
 
 namespace Lykke.Service.CrossExchangeLiquidity.AzureRepositories.AssetBalance
 {

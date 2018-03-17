@@ -1,7 +1,7 @@
 ﻿using Lykke.AzureStorage.Tables;
 using Lykke.AzureStorage.Tables.Entity.Annotation;
 using Lykke.AzureStorage.Tables.Entity.ValueTypesMerging;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalBalance;
 
 namespace Lykke.Service.CrossExchangeLiquidity.AzureRepositories.AssetBalance
 {

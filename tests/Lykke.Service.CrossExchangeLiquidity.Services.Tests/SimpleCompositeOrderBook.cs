@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 {
@@ -13,7 +13,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
         public IEnumerable<SourcedVolumePrice> Bids { get; set; }
 
-        public void AddOrUpdateOrderBook(IOrderBook orderBook)
+        public void AddOrUpdateOrderBook(IExternalOrderBook orderBook)
         {
             throw new NotImplementedException();
         }

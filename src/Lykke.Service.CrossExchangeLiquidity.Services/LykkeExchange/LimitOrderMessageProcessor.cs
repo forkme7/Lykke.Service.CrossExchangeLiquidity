@@ -1,11 +1,11 @@
 ﻿using Common.Log;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeExchange;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeTrade;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.TradePart;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Domain = Lykke.Service.CrossExchangeLiquidity.Core.Domain.OrderBook;
+using Domain = Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
 {

@@ -2,6 +2,6 @@
 {
     public interface ITradePartFilter
     {
-        bool IsAccepted(Domain.LykkeExchange.TradePart tradePart);
+        bool IsAccepted(Domain.LykkeTrade.TradePart tradePart);
     }
 }

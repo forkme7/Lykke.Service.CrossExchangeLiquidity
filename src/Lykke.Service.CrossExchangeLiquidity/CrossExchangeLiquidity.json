@@ -5,7 +5,7 @@
       "EntitiesConnString": "DefaultEndpointsProtocol=https;AccountName=tradingbotdev;AccountKey=QzghZuCMOgdnjDd2hUw2Li/VMmkyhi+YHW25RMg9q9ESr82HpAPpUNYuJBeJjl7G9kWKJ1by8VRZisFG42p9WQ==",
       "AssetBalanceTableName": "CrossExchangeLiquidityAssetBalances"
     },
-    "OrderBook": {
+    "ExternalOrderBook": {
       "Source": {
         "ConnectionString": "amqp://lykke.history:lykke.history@rabbit-me.lykke-me.svc.cluster.local:5672",
         "ExchangeName": "exchangeconnector.orderBooks",
@@ -18,59 +18,84 @@
         }
       ]
     },
-    "MatchingEngineTrader": {
-      "IpEndpoint": {
-        "Port": 8888,
-        "Host": "me.lykke-me.svc.cluster.local",
-        "InternalHost": "me.lykke-me.svc.cluster.local",
-        "MaxConnections": 100
-      },
-      "Retry": {
-        "Times": 5,
-        "Multiplier": 2,
-        "TimeSpan": "00:00:00.100"
-      },
-      "Filter": {
-        "Count": 5
-      },
-      "TimeSpan": "00:00:10",
-      "clientId": "00974096-2bda-4a85-85cb-f8883eb1be3c",
-      "LimitOrders": {
+    "LykkeOrderBook": {
+      "Source": {
         "ConnectionString": "amqp://lykke.history:lykke.history@rabbit-me.lykke-me.svc.cluster.local:5672",
-        "ExchangeName": "limitorders.clients",
+        "ExchangeName": "orderbook",
         "NameOfEndpoint": "CrossExchangeLiquidity"
+      },
+      "Filter": [ "ETHBTC" ]
+    },
+    "MatchingEngineTrader": {
+        "IpEndpoint": {
+          "Port": 8888,
+          "Host": "me.lykke-me.svc.cluster.local",
+          "InternalHost": "me.lykke-me.svc.cluster.local",
+          "MaxConnections": 100
+        },
+        "Retry": {
+          "Times": 5,
+          "Multiplier": 2,
+          "TimeSpan": "00:00:00.100"
+        },
+        "TimeSpan": "00:00:10",
+        "clientId": "00974096-2bda-4a85-85cb-f8883eb1be3c",
+        "LimitOrders": {
+          "ConnectionString": "amqp://lykke.history:lykke.history@rabbit-me.lykke-me.svc.cluster.local:5672",
+          "ExchangeName": "limitorders.clients",
+          "NameOfEndpoint": "CrossExchangeLiquidity"
+        }
+      },
+      "VolumePriceFilters": {
+        "Count": 5,
+        "Assets": [
+          {
+            "AssetId": "BTC",
+            "RiskMarkup": 0.07,
+            "UseVolumePart": 0.8,
+            "MinVolume": 3,
+            "MinHalfSpread": 0.5
+          },
+          {
+            "AssetId": "ETH",
+            "RiskMarkup": 1,
+            "UseVolumePart": 0.8,
+            "MinVolume": 43,
+            "MinHalfSpread": 7
+          }
+        ]
+      },
+      "AssetsServiceUrl": "http://assets.lykke-service.svc.cluster.local",
+      "BalancesServiceUrl": "http://balances.lykke-service.svc.cluster.local",
+      "ExternalBalance": {
+        "Balances": [
+          {
+            "Source": "bitfinex",
+            "AssetValues": [
+              {
+                "Asset": "ETH",
+                "Value": 100
+              },
+              {
+                "Asset": "BTC",
+                "Value": 10
+              }
+            ]
+          }
+        ]
+      },
+      "LykkeBalance": {
+        "clientId": "00974096-2bda-4a85-85cb-f8883eb1be3c",
+        "TimeSpan": "00:01:00",
+        "AssetIds": [ "ETH", "BTC" ]
       }
     },
-    "AssetsServiceUrl": "http://assets.lykke-service.svc.cluster.local",
-    "BalancesServiceUrl": "http://balances.lykke-service.svc.cluster.local",
-    "ExternalBalance": {
-      "ExternalBalances": [{
-          "Source": "bitfinex",
-          "AssetValues": [
-            {
-              "Asset": "ETH",
-              "Value": 100
-            },
-            {
-              "Asset": "BTC",
-              "Value": 10
-            }
-          ] 
-        }]
-    },
-    "LykkeBalance": {
-      "clientId": "00974096-2bda-4a85-85cb-f8883eb1be3c",
-      "TimeSpan": "00:01:00",
-      "AssetPairIds": [ "ETH", "BTC" ] 
+    "SlackNotifications": {
+      "AzureQueue": {
+        "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=lkedevshared;AccountKey=deMBXlOj0telRE7poKY+2P9MwPcSsOJ+1IUqG6xoQ3kdDAMhxzvh22zKAXnlaKyPeF0gpbzgK4k7M9ZLdlTx+w==",
+        "QueueName": "slack-notifications"
+      },
+      "ThrottlingLimitSeconds": 60
     }
-  },
-  "SlackNotifications": {
-    "AzureQueue": {
-      "ConnectionString":
-        "DefaultEndpointsProtocol=https;AccountName=lkedevshared;AccountKey=deMBXlOj0telRE7poKY+2P9MwPcSsOJ+1IUqG6xoQ3kdDAMhxzvh22zKAXnlaKyPeF0gpbzgK4k7M9ZLdlTx+w==",
-      "QueueName": "slack-notifications"
-    },
-    "ThrottlingLimitSeconds": 60
   }
-}
 

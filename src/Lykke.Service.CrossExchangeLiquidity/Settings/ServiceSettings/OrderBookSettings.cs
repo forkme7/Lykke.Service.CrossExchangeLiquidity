@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+using Lykke.Service.CrossExchangeLiquidity.Core.Settings.OrderBook;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings
 {
