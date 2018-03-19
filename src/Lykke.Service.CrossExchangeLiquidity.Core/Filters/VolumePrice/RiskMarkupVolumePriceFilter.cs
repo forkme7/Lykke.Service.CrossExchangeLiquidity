@@ -31,7 +31,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
 
         private decimal GetRiskMarkup(string assetPairId)
         {
-            return _assetRiskMarkup[_assetPairDictionary[assetPairId].BaseAssetId];
+            return _assetRiskMarkup[_assetPairDictionary[assetPairId].QuotingAssetId];
         }
     }
 }

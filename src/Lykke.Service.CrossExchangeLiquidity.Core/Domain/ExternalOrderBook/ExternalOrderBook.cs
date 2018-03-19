@@ -37,7 +37,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook
 
         public override string ToString()
         {
-            return GetType().Name + " " + 
+            return GetType().Name + " " +
                    $"Source = {Source} " +
                    $"AssetPairId = {AssetPairId} " +
                    $"Timestamp = {Timestamp} " +

@@ -21,19 +21,22 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.RabbitMQ
         private readonly IMessageDeserializer<T> _deserializer;
         private readonly IRabbitMqSettings _settings;
         private RabbitMqSubscriber<T> _subscriber;
+        private readonly bool _durable = true;
 
         public Subscriber(
             ILog log,
             IMessageProcessor<T> processor,
             IMessageDeserializer<T> deserializer,
             IShutdownManager shutdownManager,
-            IRabbitMqSettings settings)
+            IRabbitMqSettings settings,
+            bool durable = true)
         {
             _log = log;
             _processor = processor;
             _deserializer = deserializer;
             _settings = settings;
             shutdownManager.Register(this);
+            _durable = durable;
         }
 
         public void Start()
@@ -43,8 +46,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.RabbitMQ
             var settings = RabbitMqSubscriptionSettings
                 .CreateForSubscriber(_settings.ConnectionString,
                     _settings.ExchangeName,
-                    _settings.NameOfEndpoint)
-                .MakeDurable();
+                    _settings.NameOfEndpoint);
+
+            if (_durable)
+            {
+                settings.MakeDurable();
+            }
 
             _subscriber = new RabbitMqSubscriber<T>(settings,
                     new ResilientErrorHandlingStrategy(_log, settings,

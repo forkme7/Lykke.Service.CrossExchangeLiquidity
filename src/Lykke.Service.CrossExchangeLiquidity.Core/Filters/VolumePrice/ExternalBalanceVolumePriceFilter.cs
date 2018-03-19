@@ -20,19 +20,22 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
         }
 
         public IEnumerable<SourcedVolumePrice> GetAsks(string assetPairId, IEnumerable<SourcedVolumePrice> asks)
-        {
-            AssetPair assetPair = _assetPairDictionary[assetPairId];
-            return GetPrices(assetPair.BaseAssetId, asks);
+        {            
+            return GetPrices(assetPairId, false, asks);
         }
 
         public IEnumerable<SourcedVolumePrice> GetBids(string assetPairId, IEnumerable<SourcedVolumePrice> bids)
         {
-            AssetPair assetPair = _assetPairDictionary[assetPairId];
-            return GetPrices(assetPair.QuotingAssetId, bids);
+            return GetPrices(assetPairId, true, bids);
         }
 
-        private IEnumerable<SourcedVolumePrice> GetPrices(string assetId, IEnumerable<SourcedVolumePrice> prices)
+        private IEnumerable<SourcedVolumePrice> GetPrices(string assetPairId, 
+            bool isBuy, 
+            IEnumerable<SourcedVolumePrice> prices)
         {
+            AssetPair assetPair = _assetPairDictionary[assetPairId];
+            string assetId = isBuy ? assetPair.QuotingAssetId : assetPair.BaseAssetId;
+
             var balances = new Dictionary<string, decimal>();
             foreach (var volumePrice in prices)
             {
@@ -46,7 +49,15 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
                     balance = _externalBalanceService.GetAssetBalance(volumePrice.Source, assetId);
                 }
 
-                balance -= volumePrice.Volume;
+                if (isBuy)
+                {
+                    balance -= volumePrice.Volume * volumePrice.Price;
+                }
+                else
+                {
+                    balance -= volumePrice.Volume;
+                }                
+
                 if (balance >= 0)
                 {
                     yield return volumePrice;

@@ -60,13 +60,18 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
 
         public decimal GetAssetBalance(string assetId)
         {
-            return _balances[assetId];
+            if (_balances.TryGetValue(assetId, out var balance))
+            {
+                return balance;
+            }
+
+            return 0;
         }
 
         public void Start()
         {
+            Task.Run(async () => await GetFromServerAsync()).Wait();
             //todo: use StartupManager
-            Task.Run(async () => await GetFromServerAsync()).RunSynchronously();
 
             _timer = new Timer(_settings.TimeSpan.TotalMilliseconds);
             _timer.Elapsed += async (sender, e) => await GetFromServerAsync();

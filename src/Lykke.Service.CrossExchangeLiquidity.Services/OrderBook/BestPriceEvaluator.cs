@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
 {
-    public class BestPriceEvaluator: IBestPriceEvaluator
+    public class BestPriceEvaluator : IBestPriceEvaluator
     {
         private readonly ILykkeExchange _lykkeExchange;
         private readonly ICompositeExchange _compositeExchange;
@@ -63,14 +63,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
         private decimal GetBestAsk(string assetPairId)
         {
             var lykkeOrderBook = _lykkeExchange.GetOrderBook(assetPairId);
-            var compositeOrderBook = _compositeExchange[assetPairId];
+            _compositeExchange.TryGetValue(assetPairId, out var compositeOrderBook);
 
             decimal bestAsk = 0;
-            if (lykkeOrderBook.Asks.Any())
+            if (lykkeOrderBook != null && lykkeOrderBook.Asks.Any())
             {
                 bestAsk = lykkeOrderBook.Asks.First().Price;
             }
-            else if (compositeOrderBook.Asks.Any())
+            else if (compositeOrderBook != null && compositeOrderBook.Asks.Any())
             {
                 bestAsk = compositeOrderBook.Asks.First().Price;
             }
@@ -84,11 +84,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
             var compositeOrderBook = _compositeExchange[assetPairId];
 
             decimal bestBid = 0;
-            if (lykkeOrderBook.Bids.Any())
+            if (lykkeOrderBook != null && lykkeOrderBook.Bids.Any())
             {
                 bestBid = lykkeOrderBook.Bids.First().Price;
             }
-            else if (compositeOrderBook.Bids.Any())
+            else if (compositeOrderBook != null && compositeOrderBook.Bids.Any())
             {
                 bestBid = compositeOrderBook.Bids.First().Price;
             }
@@ -98,7 +98,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
 
         private decimal GetMinHalfSpread(string assetPairId)
         {
-            return _assetMinHalfSpread[_assetPairDictionary[assetPairId].BaseAssetId];
+            return _assetMinHalfSpread[_assetPairDictionary[assetPairId].QuotingAssetId];
         }
 
     }

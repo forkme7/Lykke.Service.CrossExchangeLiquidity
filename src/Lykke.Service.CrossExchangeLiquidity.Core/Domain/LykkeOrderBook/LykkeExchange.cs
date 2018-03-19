@@ -25,7 +25,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
 
         public OrderBook GetOrderBook(string assetPairId)
         {
-            return _dictionary[assetPairId];
+            if (_dictionary.TryGetValue(assetPairId, out var orderBook))
+            {
+                return orderBook;
+            }
+
+            return null;
         }
 
         private OrderBook UpdateOrderBook(OrderBook orderBook, LykkeOrderBook lykkeOrderBook)

@@ -65,7 +65,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.ExternalExchange
         {
             //todo: use StartupManager
 
-            Task.Run(async () => await InitializeAsync()).RunSynchronously();
+            Task.Run(async () => await InitializeAsync()).Wait();
         }
     }
 }

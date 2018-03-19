@@ -92,6 +92,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
 
             builder.RegisterType<ExternalBalanceService>()
                 .As<IExternalBalanceService>()
+                .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
         }
@@ -115,6 +116,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
 
             builder.RegisterType<LykkeBalanceService>()
                 .As<ILykkeBalanceService>()
+                .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
         }
@@ -164,7 +166,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                     new ExternalBalanceVolumePriceFilter(c.Resolve<IExternalBalanceService>(), 
                         c.Resolve<IAssetPairDictionary>()),
                     new RiskMarkupVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.RiskMarkup),
-                        c.Resolve<IAssetPairDictionary>()), 
+                        c.Resolve<IAssetPairDictionary>()),
                     new LykkeBalanceVolumePriceFilter(c.Resolve<ILykkeBalanceService>(),
                         c.Resolve<IAssetPairDictionary>()),
                     new TopVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Count)
@@ -186,7 +188,8 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                 .As<IExternalOrderBookFilter>();
 
             builder.RegisterType<CompositeExchange>()
-                .As<ICompositeExchange>();
+                .As<ICompositeExchange>()
+                .SingleInstance();
 
             builder.RegisterType<ExternalOrderBookProcessor>()
                 .As<IMessageProcessor<ExternalOrderBook>>();
@@ -197,6 +200,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
             builder.RegisterType<Subscriber<ExternalOrderBook>>()
                 .As<IStartable>()
                 .WithParameter("settings", _settings.CurrentValue.ExternalOrderBook.Source)
+                //.WithParameter("durable", false)
                 .AutoActivate()
                 .SingleInstance();
         }
@@ -225,6 +229,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
             builder.RegisterType<Subscriber<LykkeOrderBook>>()
                 .As<IStartable>()
                 .WithParameter("settings", _settings.CurrentValue.LykkeOrderBook.Source)
+                //.WithParameter("durable", false)
                 .AutoActivate()
                 .SingleInstance();
         }

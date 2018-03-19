@@ -11,11 +11,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook
         protected Dictionary<string, IExternalOrderBook> OrderBooks { get; private set; }
 
         public IEnumerable<SourcedVolumePrice> Asks => OrderBooks.Values
-            .SelectMany(b => b.Asks.Select(a => new SourcedVolumePrice(a, b.Source)))
+            .SelectMany(b => b.Asks.Select(p => new SourcedVolumePrice(p, b.Source)))
             .OrderBy(p => p.Price);
 
         public IEnumerable<SourcedVolumePrice> Bids => OrderBooks.Values
-            .SelectMany(b => b.Bids.Select(a => new SourcedVolumePrice(a, b.Source)))
+            .SelectMany(b => b.Bids.Select(p => new SourcedVolumePrice(p, b.Source)))
             .OrderByDescending(p => p.Price);
 
         public CompositeOrderBook(string assetPairId)

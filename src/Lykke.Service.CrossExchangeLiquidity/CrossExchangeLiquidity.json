@@ -51,17 +51,17 @@
         "Assets": [
           {
             "AssetId": "BTC",
-            "RiskMarkup": 0.07,
+            "RiskMarkup": 0.007,
             "UseVolumePart": 0.8,
-            "MinVolume": 3,
-            "MinHalfSpread": 0.5
+            "MinVolume": 0.3,
+            "MinHalfSpread": 0.005
           },
           {
             "AssetId": "ETH",
-            "RiskMarkup": 1,
+            "RiskMarkup": 0.1,
             "UseVolumePart": 0.8,
-            "MinVolume": 43,
-            "MinHalfSpread": 7
+            "MinVolume": 3,
+            "MinHalfSpread": 0.07
           }
         ]
       },
@@ -74,11 +74,11 @@
             "AssetValues": [
               {
                 "Asset": "ETH",
-                "Value": 100
+                "Value": 1000
               },
               {
                 "Asset": "BTC",
-                "Value": 10
+                "Value": 100
               }
             ]
           }
