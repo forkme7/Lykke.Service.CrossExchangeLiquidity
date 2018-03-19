@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Extensions;
 using Lykke.MatchingEngine.Connector.Abstractions.Models;
@@ -57,7 +58,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
             await Task.Delay(fabric.Settings.TimeSpan);
             await trader.PlaceOrdersAsync(orderBook2);
 
-            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>()),
+            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(2));
         }
 
@@ -70,7 +71,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
             await trader.PlaceOrdersAsync(orderBook1);
 
-            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m=> m.Orders.Count == MatchingEngineTraderFabric.Count)),
+            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m=> m.Orders.Count == MatchingEngineTraderFabric.Count), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -85,7 +86,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
             await Task.Delay(fabric.Settings.TimeSpan);
             await trader.PlaceOrdersAsync(orderBook);
 
-            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>()),
+            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -100,7 +101,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
             await trader.PlaceOrdersAsync(orderBook1);
             await trader.PlaceOrdersAsync(orderBook2);
 
-            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>()),
+            fabric.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.IsAny<MultiLimitOrderModel>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -113,7 +114,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
             await trader.PlaceOrdersAsync(orderBook1);
 
-            fabric.MatchingEngineClient.Verify(c => c.CancelMultiLimitOrderAsync(It.Is<MultiLimitOrderCancelModel>(m => m.IsBuy)),
+            fabric.MatchingEngineClient.Verify(c => c.CancelMultiLimitOrderAsync(It.Is<MultiLimitOrderCancelModel>(m => m.IsBuy), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -126,7 +127,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
             await trader.PlaceOrdersAsync(orderBook2);
 
-            fabric.MatchingEngineClient.Verify(c => c.CancelMultiLimitOrderAsync(It.Is<MultiLimitOrderCancelModel>(m => !m.IsBuy)),
+            fabric.MatchingEngineClient.Verify(c => c.CancelMultiLimitOrderAsync(It.Is<MultiLimitOrderCancelModel>(m => !m.IsBuy), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
     }
