@@ -1,11 +1,9 @@
-﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
-using Lykke.Service.CrossExchangeLiquidity.Core.Filters.ExternalOrderBook;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Filters.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.OrderBook;
 using System;
 using Xunit;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests.Filters.ExternalOrderBook
 {
     public class SourceAssetPairIdsOrderBookFilterTests
     {
@@ -25,16 +23,20 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 });
         }
 
-        private ExternalOrderBook GetOrderBook(string source, string assetPairId)
+        private Core.Domain.ExternalOrderBook.ExternalOrderBook GetOrderBook(string source, string assetPairId)
         {
-            return new ExternalOrderBook(source, assetPairId, new ExternalVolumePrice[0], new ExternalVolumePrice[0], DateTime.Now);
+            return new Core.Domain.ExternalOrderBook.ExternalOrderBook(source, 
+                assetPairId, 
+                new Core.Domain.ExternalOrderBook.ExternalVolumePrice[0], 
+                new Core.Domain.ExternalOrderBook.ExternalVolumePrice[0], 
+                DateTime.Now);
         }
 
         [Fact]
         public void IsAccepted_WhenAssetPairIdsEqual_RetrunsTrue()
         {
             var filter = GetFilter();
-            ExternalOrderBook orderBook = GetOrderBook(Source1, AssetPairId1);
+            var orderBook = GetOrderBook(Source1, AssetPairId1);
 
             bool result = filter.IsAccepted(orderBook);
 
@@ -45,7 +47,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public void IsAccepted_WhenAssetPairIdsDoNotEqual_RetrunsFalse()
         {
             var filter = GetFilter();
-            ExternalOrderBook orderBook = GetOrderBook(Source1, AssetPairId3);
+            var orderBook = GetOrderBook(Source1, AssetPairId3);
 
             bool result = filter.IsAccepted(orderBook);
 
@@ -56,7 +58,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public void IsAccepted_WhenSourcesEqual_RetrunsTrue()
         {
             var filter = GetFilter();
-            ExternalOrderBook orderBook = GetOrderBook(Source1, AssetPairId1);
+            var orderBook = GetOrderBook(Source1, AssetPairId1);
 
             bool result = filter.IsAccepted(orderBook);
 
@@ -67,7 +69,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public void IsAccepted_WhenSourcesDoNotEqual_RetrunsFalse()
         {
             var filter = GetFilter();
-            ExternalOrderBook orderBook = GetOrderBook(Source2, AssetPairId1);
+            var orderBook = GetOrderBook(Source2, AssetPairId1);
 
             bool result = filter.IsAccepted(orderBook);
 

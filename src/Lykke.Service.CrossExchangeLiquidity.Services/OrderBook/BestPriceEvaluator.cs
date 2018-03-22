@@ -68,11 +68,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
             decimal bestAsk = 0;
             if (lykkeOrderBook != null && lykkeOrderBook.Asks.Any())
             {
-                bestAsk = lykkeOrderBook.Asks.First().Price;
+                bestAsk = lykkeOrderBook.Asks.Min(p=>p.Price);
             }
             else if (compositeOrderBook != null && compositeOrderBook.Asks.Any())
             {
-                bestAsk = compositeOrderBook.Asks.First().Price;
+                bestAsk = compositeOrderBook.Asks.Min(p => p.Price);
             }
 
             return bestAsk;
@@ -81,16 +81,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.OrderBook
         private decimal GetBestBid(string assetPairId)
         {
             var lykkeOrderBook = _lykkeExchange.GetOrderBook(assetPairId);
-            var compositeOrderBook = _compositeExchange[assetPairId];
+            _compositeExchange.TryGetValue(assetPairId, out var compositeOrderBook);
 
             decimal bestBid = 0;
             if (lykkeOrderBook != null && lykkeOrderBook.Bids.Any())
             {
-                bestBid = lykkeOrderBook.Bids.First().Price;
+                bestBid = lykkeOrderBook.Bids.Max(p=>p.Price);
             }
             else if (compositeOrderBook != null && compositeOrderBook.Bids.Any())
             {
-                bestBid = compositeOrderBook.Bids.First().Price;
+                bestBid = compositeOrderBook.Bids.Max(p => p.Price);
             }
 
             return bestBid;

@@ -2,7 +2,7 @@
 using System;
 using Xunit;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests.Domain.ExternalOrderBook
 {
     public class CompositeExchangeTests
     {
@@ -13,7 +13,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         public void AddOrUpdateOrderBook_WhenAssetPairIdIsAdded_OrderBookIsCreated()
         {
             var compositeExchange = new CompositeExchange();
-            var orderBook = new ExternalOrderBook(Source,
+            var orderBook = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source,
                 AssetPairId,
                 new ExternalVolumePrice[0],
                 new ExternalVolumePrice[0],

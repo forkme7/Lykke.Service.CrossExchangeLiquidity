@@ -5,9 +5,9 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Services.OrderBook;
 using Moq;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
+namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests.OrderBook
 {
-    public class OrderBookProcessorFabric
+    public class ExternalOrderBookFactory
     {
         public Mock<ILog> Log { get; private set; }
 
@@ -17,7 +17,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests
 
         public Mock<ILykkeTrader> Trader { get; private set; }
 
-        public OrderBookProcessorFabric()
+        public ExternalOrderBookFactory()
         {
             Log = new Mock<ILog>();
             OrderBookFilter = new Mock<IExternalOrderBookFilter>();

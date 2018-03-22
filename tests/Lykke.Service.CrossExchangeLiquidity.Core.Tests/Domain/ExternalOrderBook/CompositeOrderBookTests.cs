@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests.Domain.ExternalOrderBook
 {
     public class CompositeOrderBookTests
     {
@@ -28,7 +28,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
         {
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
             const string wrongAssetPairId = "BTCUSD";
-            var orderBook = new ExternalOrderBook(Source1, 
+            var orderBook = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source1, 
                 wrongAssetPairId, 
                 new ExternalVolumePrice[0], 
                 new ExternalVolumePrice[0],
@@ -44,7 +44,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
             var volumePrices = GetVolumePrices().OrderBy(p => p.Price).ToArray();
 
-            var orderBook1 = new ExternalOrderBook(Source1,
+            var orderBook1 = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source1,
                 AssetPairId,
                 new []
                 {
@@ -54,7 +54,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 new ExternalVolumePrice[0],
                 DateTime.Now);            
 
-            var orderBook2 = new ExternalOrderBook(Source2,
+            var orderBook2 = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source2,
                 AssetPairId,
                 new []
                 {
@@ -84,7 +84,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
             var compositeOrderBook = new CompositeOrderBook(AssetPairId);
             var volumePrices = GetVolumePrices().OrderBy(p => p.Price).ToArray();
 
-            var orderBook1 = new ExternalOrderBook(Source1,
+            var orderBook1 = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source1,
                 AssetPairId,
                 new ExternalVolumePrice[0],
                 new[]
@@ -94,7 +94,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Tests
                 },                
                 DateTime.Now);            
 
-            var orderBook2 = new ExternalOrderBook(Source2,
+            var orderBook2 = new Core.Domain.ExternalOrderBook.ExternalOrderBook(Source2,
                 AssetPairId,
                 new ExternalVolumePrice[0],
                 new[]

@@ -35,6 +35,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
                 await _balancesClient.GetClientBalances(_settings.ClientId);
 
             _balances.Clear();
+            if (response == null)
+            {
+                return;
+            }
+
             foreach (ClientBalanceResponseModel model in response)
             {
                 if (!_settings.AssetIds.Contains(model.AssetId))
