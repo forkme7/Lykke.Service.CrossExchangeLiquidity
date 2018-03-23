@@ -3,6 +3,7 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
@@ -36,38 +37,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers
 
             var orders = new List<MultiOrderItemModel>();
 
-            decimal minAsk = _bestPriceEvaluator.GetMinAsk(orderBook.AssetPairId);
-            foreach (var volumePrice in _filter.GetAsks(orderBook.AssetPairId, orderBook.Asks))
-            {
-                var modelVolumePrice = new VolumePrice();
-                modelVolumePrice.Volume = volumePrice.Volume;
-                if (volumePrice.Price < minAsk)
-                {
-                    modelVolumePrice.Price = minAsk;
-                }
-                else
-                {
-                    modelVolumePrice.Price = volumePrice.Price;
-                }
-
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Sell, modelVolumePrice));
-            }
-
-            decimal maxBid = _bestPriceEvaluator.GetMaxBid(orderBook.AssetPairId);
-            foreach (var volumePrice in _filter.GetBids(orderBook.AssetPairId, orderBook.Bids))
-            {
-                var modelVolumePrice = new VolumePrice();
-                modelVolumePrice.Volume = volumePrice.Volume;
-                if (volumePrice.Price > maxBid)
-                {
-                    modelVolumePrice.Price = maxBid;
-                }
-                else
-                {
-                    modelVolumePrice.Price = volumePrice.Price;
-                }
-                orders.Add(CreateMultiOrderItemModel(OrderAction.Buy, modelVolumePrice));
-            }
+            orders.AddRange(_filter.GetAsks(orderBook.AssetPairId, orderBook.Asks)
+                .Select(p => CreateMultiOrderItemModel(OrderAction.Sell, p)));
+            orders.AddRange(_filter.GetBids(orderBook.AssetPairId, orderBook.Bids)
+                .Select(p => CreateMultiOrderItemModel(OrderAction.Buy, p)));
 
             model.Orders = orders;
 

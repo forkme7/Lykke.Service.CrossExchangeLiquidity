@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
 {
@@ -19,7 +18,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
         public void AddOrUpdate(LykkeOrderBook lykkeOrderBook)
         {
             _dictionary.AddOrUpdate(lykkeOrderBook.AssetPairId,
-                k => UpdateOrderBook(new OrderBook(), lykkeOrderBook),
+                k => UpdateOrderBook(new OrderBook(k), lykkeOrderBook),
                 (k, v) => UpdateOrderBook(v, lykkeOrderBook));
         }
 
@@ -39,22 +38,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
             {
                 orderBook.Bids = lykkeOrderBook.Prices.Where(p =>
                         !string.Equals(p.ClientId, _settings.ClientId, StringComparison.OrdinalIgnoreCase))
-                    .Select(p => new VolumePrice()
-                    {
-                        Price = p.Price,
-                        Volume = p.Volume
-                    })
+                    .Select(p => new VolumePrice(p.Price, p.Volume))
                     .OrderByDescending(p => p.Price);
             }
             else
             {
                 orderBook.Asks = lykkeOrderBook.Prices.Where(p =>
                         !string.Equals(p.ClientId, _settings.ClientId, StringComparison.OrdinalIgnoreCase))
-                    .Select(p => new VolumePrice()
-                    {
-                        Price = p.Price,
-                        Volume = p.Volume
-                    })
+                    .Select(p => new VolumePrice(p.Price, p.Volume))
                     .OrderBy(p => p.Price);
             }
 

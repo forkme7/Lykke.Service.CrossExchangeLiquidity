@@ -18,11 +18,16 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         private readonly ILog _log;
         private readonly IMatchingEngineClient _matchingEngineClient;
         private readonly IMatchingEngineTraderSettings _settings;
-        private DateTime _lastPlace = DateTime.MinValue;
-        private MultiLimitOrderModel _lastModel = null;
+        private DateTime _lastPlace = DateTime.MinValue;        
         private readonly MultiLimitOrderModelHelper _multiLimitOrderModelHelper;
         private readonly MultiLimitOrderCancelModelHelper _multiLimitOrderCancelModelHelper;
         private readonly MultiLimitOrderModelEqualityComparer _multiLimitOrderModelEqualityComparer;
+
+        public MultiLimitOrderModel LastModel
+        {
+            get;
+            private set;
+        }
 
         public MatchingEngineTrader(ILog log,
             IMatchingEngineTraderSettings settings,
@@ -97,10 +102,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
 
         private bool IsModelChanged(MultiLimitOrderModel model)
         {
-            if (_multiLimitOrderModelEqualityComparer.Equals(model, _lastModel))
+            if (_multiLimitOrderModelEqualityComparer.Equals(model, LastModel))
                 return false;
 
-            _lastModel = model;
+            LastModel = model;
             return true;
         }
 

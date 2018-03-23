@@ -138,39 +138,5 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests.LykkeExchange
             factory.MatchingEngineClient.Verify(c => c.CancelMultiLimitOrderAsync(It.Is<MultiLimitOrderCancelModel>(m => !m.IsBuy), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
-
-        [Fact]
-        public async Task PlaceOrders_WhenMinAskIsProvided_PlaceOrderWithMinAsk()
-        {
-            var factory = new MatchingEngineTraderFactory();
-            factory.BestPriceEvaluator.Setup(e => e.GetMinAsk(It.IsAny<string>())).Returns(decimal.MaxValue);
-
-            MatchingEngineTrader trader = factory.CreateMatchingEngineTrader();
-            ICompositeOrderBook orderBook1 = CreateOrderBook1();
-
-            await trader.PlaceOrdersAsync(orderBook1);
-
-            factory.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m =>
-                        m.Orders.All(o => o.Price == (double)decimal.MaxValue)),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task PlaceOrders_WhenMaxBidIsProvided_PlaceOrderWithMaxBid()
-        {
-            var factory = new MatchingEngineTraderFactory();
-            factory.BestPriceEvaluator.Setup(e => e.GetMaxBid(It.IsAny<string>())).Returns(0);
-
-            MatchingEngineTrader trader = factory.CreateMatchingEngineTrader();
-            ICompositeOrderBook orderBook2 = CreateOrderBook2();
-
-            await trader.PlaceOrdersAsync(orderBook2);
-
-            factory.MatchingEngineClient.Verify(c => c.PlaceMultiLimitOrderAsync(It.Is<MultiLimitOrderModel>(m =>
-                        m.Orders.All(o => o.Price == 0)),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
     }
 }

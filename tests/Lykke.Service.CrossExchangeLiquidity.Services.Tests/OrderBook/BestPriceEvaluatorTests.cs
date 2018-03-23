@@ -22,17 +22,17 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests.OrderBook
 
         private Core.Domain.LykkeOrderBook.OrderBook GetOrderBook()
         {
-            return new Core.Domain.LykkeOrderBook.OrderBook()
+            return new Core.Domain.LykkeOrderBook.OrderBook(AssetPairId)
             {
                 Asks = new[]
                 {
-                    new VolumePrice(){Price = 5, Volume = 1},
-                    new VolumePrice(){Price = 4, Volume = 1},
+                    new VolumePrice( 5, 1),
+                    new VolumePrice( 4, 1),
                 },
                 Bids = new[]
                 {
-                    new VolumePrice(){Price = 2, Volume = 1},
-                    new VolumePrice(){Price = 1, Volume = 1},
+                    new VolumePrice(2, 1),
+                    new VolumePrice(1, 1),
                 },
             };
         }

@@ -1,22 +1,18 @@
-﻿namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook
+﻿using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook;
+
+namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook
 {
-    public class SourcedVolumePrice
+    public class SourcedVolumePrice : VolumePrice
     {
-        public decimal Price { get; }
-
-        public decimal Volume { get; }
-
         public string Source { get; }
 
-        public SourcedVolumePrice(ExternalVolumePrice volumePrice, string source) : 
+        public SourcedVolumePrice(ExternalVolumePrice volumePrice, string source) :
             this(volumePrice.Price, volumePrice.Volume, source)
         {
         }
 
-        public SourcedVolumePrice(decimal price, decimal volume, string source)
+        public SourcedVolumePrice(decimal price, decimal volume, string source) : base(price, volume)
         {
-            Price = price;
-            Volume = volume;
             Source = source;
         }
     }

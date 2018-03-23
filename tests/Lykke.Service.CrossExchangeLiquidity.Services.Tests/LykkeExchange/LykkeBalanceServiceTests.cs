@@ -73,7 +73,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.Tests.LykkeExchange
 
             lykkeBalanceService.Start();
             await lykkeBalanceService.AddAssetAsync(AssetId, Balance);
-            await Task.Delay(new TimeSpan(TimeSpan.Ticks + 100));
+            await Task.Delay(new TimeSpan(TimeSpan.Ticks + 200));
             decimal result = lykkeBalanceService.GetAssetBalance(AssetId);
 
             Assert.Equal((decimal) DefaultBalance, result);

@@ -169,7 +169,8 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                         c.Resolve<IAssetPairDictionary>()),
                     new LykkeBalanceVolumePriceFilter(c.Resolve<ILykkeBalanceService>(),
                         c.Resolve<IAssetPairDictionary>()),
-                    new TopVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Count)
+                    new TopVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Count),
+                    new BestPriceFilter(c.Resolve<IBestPriceEvaluator>())
                 }))
                 .As<IVolumePriceFilter>();
 
