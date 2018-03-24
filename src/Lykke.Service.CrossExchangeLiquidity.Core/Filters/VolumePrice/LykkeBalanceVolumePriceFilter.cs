@@ -9,14 +9,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
 {
     public class LykkeBalanceVolumePriceFilter : IVolumePriceFilter
     {
-        private readonly ILykkeBalanceService _lykkeBalanceService;
-        private readonly IAssetPairDictionary _assetPairDictionary;
+        public ILykkeBalanceService LykkeBalanceService { get; }
+        public IAssetPairDictionary AssetPairDictionary;
 
         public LykkeBalanceVolumePriceFilter(ILykkeBalanceService lykkeBalanceService,
             IAssetPairDictionary assetPairDictionary)
         {
-            _lykkeBalanceService = lykkeBalanceService;
-            _assetPairDictionary = assetPairDictionary;
+            LykkeBalanceService = lykkeBalanceService;
+            AssetPairDictionary = assetPairDictionary;
         }
 
         public IEnumerable<SourcedVolumePrice> GetAsks(string assetPairId, IEnumerable<SourcedVolumePrice> asks)
@@ -33,10 +33,10 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
             bool isBuy,
             IEnumerable<SourcedVolumePrice> prices)
         {
-            AssetPair assetPair = _assetPairDictionary[assetPairId];
+            AssetPair assetPair = AssetPairDictionary[assetPairId];
             string assetId = isBuy ? assetPair.QuotingAssetId : assetPair.BaseAssetId;
 
-            decimal balance = _lykkeBalanceService.GetAssetBalance(assetId);
+            decimal balance = LykkeBalanceService.GetAssetBalance(assetId);
             foreach (var volumePrice in prices)
             {
                 if (isBuy)

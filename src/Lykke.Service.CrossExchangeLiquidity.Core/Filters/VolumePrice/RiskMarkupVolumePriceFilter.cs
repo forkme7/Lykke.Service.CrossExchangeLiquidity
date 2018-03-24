@@ -29,7 +29,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
             return bids.Select(p => new SourcedVolumePrice(p.Price - riskMarkup, p.Volume, p.Source));
         }
 
-        private decimal GetRiskMarkup(string assetPairId)
+        public decimal GetRiskMarkup(string assetPairId)
         {
             return _assetRiskMarkup[_assetPairDictionary[assetPairId].QuotingAssetId];
         }

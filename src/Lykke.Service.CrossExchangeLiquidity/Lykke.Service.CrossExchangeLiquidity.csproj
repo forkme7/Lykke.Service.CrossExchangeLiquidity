@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.2.2" />
     <PackageReference Include="Lykke.Common" Version="6.0.0" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.4.0" />
     <PackageReference Include="Lykke.Logs" Version="3.6.0" />
@@ -47,6 +48,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\Lykke.Service.CrossExchangeLiquidity.Shared\Lykke.Service.CrossExchangeLiquidity.Shared.csproj" />
     <ProjectReference Include="..\Lykke.Service.CrossExchangeLiquidity.AzureRepositories\Lykke.Service.CrossExchangeLiquidity.AzureRepositories.csproj" />
     <ProjectReference Include="..\Lykke.Service.CrossExchangeLiquidity.Core\Lykke.Service.CrossExchangeLiquidity.Core.csproj" />
     <ProjectReference Include="..\Lykke.Service.CrossExchangeLiquidity.Services\Lykke.Service.CrossExchangeLiquidity.Services.csproj" />

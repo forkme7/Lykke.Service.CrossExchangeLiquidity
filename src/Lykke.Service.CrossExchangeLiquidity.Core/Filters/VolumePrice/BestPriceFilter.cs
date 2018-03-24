@@ -7,22 +7,22 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
 {
     public class BestPriceFilter : IVolumePriceFilter
     {
-        private readonly IBestPriceEvaluator _bestPriceEvaluator;
+        public IBestPriceEvaluator BestPriceEvaluator { get; }
 
         public BestPriceFilter(IBestPriceEvaluator bestPriceEvaluator)
         {
-            _bestPriceEvaluator = bestPriceEvaluator;
+            BestPriceEvaluator = bestPriceEvaluator;
         }
 
         public IEnumerable<SourcedVolumePrice> GetAsks(string assetPairId, IEnumerable<SourcedVolumePrice> asks)
         {
-            decimal minAsk = _bestPriceEvaluator.GetMinAsk(assetPairId);
+            decimal minAsk = BestPriceEvaluator.GetMinAsk(assetPairId);
             return asks.Select(p => new SourcedVolumePrice(p.Price < minAsk ? minAsk : p.Price, p.Volume, p.Source));
         }
 
         public IEnumerable<SourcedVolumePrice> GetBids(string assetPairId, IEnumerable<SourcedVolumePrice> bids)
         {
-            decimal maxBid = _bestPriceEvaluator.GetMaxBid(assetPairId);
+            decimal maxBid = BestPriceEvaluator.GetMaxBid(assetPairId);
             return bids.Select(p => new SourcedVolumePrice(p.Price > maxBid ? maxBid : p.Price, p.Volume, p.Source));
         }
     }

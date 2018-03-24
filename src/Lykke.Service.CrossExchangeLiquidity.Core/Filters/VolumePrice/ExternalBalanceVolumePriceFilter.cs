@@ -9,14 +9,14 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
 {
     public class ExternalBalanceVolumePriceFilter: IVolumePriceFilter
     {
-        private readonly IExternalBalanceService _externalBalanceService;
-        private readonly IAssetPairDictionary _assetPairDictionary;
+        public IExternalBalanceService ExternalBalanceService { get; }
+        public IAssetPairDictionary AssetPairDictionary { get; }
 
         public ExternalBalanceVolumePriceFilter(IExternalBalanceService externalBalanceService,
             IAssetPairDictionary assetPairDictionary)
         {
-            _externalBalanceService = externalBalanceService;
-            _assetPairDictionary = assetPairDictionary;
+            ExternalBalanceService = externalBalanceService;
+            AssetPairDictionary = assetPairDictionary;
         }
 
         public IEnumerable<SourcedVolumePrice> GetAsks(string assetPairId, IEnumerable<SourcedVolumePrice> asks)
@@ -33,7 +33,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
             bool isBuy, 
             IEnumerable<SourcedVolumePrice> prices)
         {
-            AssetPair assetPair = _assetPairDictionary[assetPairId];
+            AssetPair assetPair = AssetPairDictionary[assetPairId];
             string assetId = isBuy ? assetPair.QuotingAssetId : assetPair.BaseAssetId;
 
             var balances = new Dictionary<string, decimal>();
@@ -46,7 +46,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
                 }
                 else
                 {
-                    balance = _externalBalanceService.GetAssetBalance(volumePrice.Source, assetId);
+                    balance = ExternalBalanceService.GetAssetBalance(volumePrice.Source, assetId);
                 }
 
                 if (isBuy)

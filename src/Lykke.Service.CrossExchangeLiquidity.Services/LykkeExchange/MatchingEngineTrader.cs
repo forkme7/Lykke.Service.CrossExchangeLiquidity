@@ -7,6 +7,7 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange.Helpers;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,12 +23,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
         private readonly MultiLimitOrderModelHelper _multiLimitOrderModelHelper;
         private readonly MultiLimitOrderCancelModelHelper _multiLimitOrderCancelModelHelper;
         private readonly MultiLimitOrderModelEqualityComparer _multiLimitOrderModelEqualityComparer;
-
-        public MultiLimitOrderModel LastModel
-        {
-            get;
-            private set;
-        }
+        private readonly ConcurrentDictionary<string, MultiLimitOrderModel> _lastModels;
 
         public MatchingEngineTrader(ILog log,
             IMatchingEngineTraderSettings settings,
@@ -41,11 +37,19 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             _multiLimitOrderModelHelper = new MultiLimitOrderModelHelper(settings, filter, bestPriceEvaluator);
             _multiLimitOrderCancelModelHelper = new MultiLimitOrderCancelModelHelper(settings);
             _multiLimitOrderModelEqualityComparer = new MultiLimitOrderModelEqualityComparer();
+            _lastModels = new ConcurrentDictionary<string, MultiLimitOrderModel>();
         }
 
         public async Task PlaceOrdersAsync(ICompositeOrderBook orderBook)
         {
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, $">> {orderBook}");
+
+            if (!IsBreakOver())
+            {
+                await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name,
+                    $"Break is not over. The last place is {_lastPlace.ToShortTimeString()}.");
+                return;
+            }
 
             MultiLimitOrderModel model = _multiLimitOrderModelHelper.CreateMultiLimitOrderModel(orderBook);
 
@@ -56,13 +60,6 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             {
                 await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name,
                     "Model is not changed. Skip it.");
-                return;
-            }
-
-            if (!IsBreakOver())
-            {
-                await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name,
-                    $"Break is not over. The last place is {_lastPlace.ToShortTimeString()}.");
                 return;
             }
 
@@ -85,27 +82,30 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
                 "Place orders on the market.");
 
             await _matchingEngineClient.PlaceMultiLimitOrderAsync(model);
+            UpdateLastPlace();
 
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, "<<");
         }
 
         private bool IsBreakOver()
         {
-            var result = DateTime.Now - _lastPlace > _settings.TimeSpan;
-            if (result)
-            {
-                _lastPlace = DateTime.Now;
-            }
+            return DateTime.Now - _lastPlace > _settings.TimeSpan;
+        }
 
-            return result;
+        private void UpdateLastPlace()
+        {
+            _lastPlace = DateTime.Now;
         }
 
         private bool IsModelChanged(MultiLimitOrderModel model)
         {
-            if (_multiLimitOrderModelEqualityComparer.Equals(model, LastModel))
+            if (_lastModels.TryGetValue(model.AssetId, out var lastModel) &&
+                _multiLimitOrderModelEqualityComparer.Equals(model, lastModel))
+            {
                 return false;
+            }
 
-            LastModel = model;
+            _lastModels[model.AssetId] = model;
             return true;
         }
 
@@ -120,6 +120,21 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             await _matchingEngineClient.CancelMultiLimitOrderAsync(model);
 
             await _log.WriteInfoAsync(GetType().Name, MethodBase.GetCurrentMethod().Name, "<<");
+        }
+
+        public MultiLimitOrderModel GetLastModel(string assetPairId)
+        {
+            if (_lastModels.TryGetValue(assetPairId, out var lastModel))
+            {
+                return lastModel;
+            }
+
+            return null;
+        }
+
+        public MultiLimitOrderModel[] GetLastModels()
+        {
+            return _lastModels.Values.ToArray();
         }
     }
 }

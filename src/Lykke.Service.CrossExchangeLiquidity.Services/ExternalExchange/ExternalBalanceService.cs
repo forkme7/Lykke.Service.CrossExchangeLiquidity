@@ -60,6 +60,12 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.ExternalExchange
             return _balances[source][assetId];
         }
 
+        public ReadOnlyDictionary<string, ReadOnlyDictionary<string, decimal>> GetBalances()
+        {
+            return new ReadOnlyDictionary<string, ReadOnlyDictionary<string, decimal>>(
+                _balances.ToDictionary(b => b.Key, b => new ReadOnlyDictionary<string, decimal>(b.Value)));
+        }
+
         public void Start()
         {
             //todo: use StartupManager

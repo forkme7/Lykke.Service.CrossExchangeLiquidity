@@ -7,5 +7,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
         void AddOrUpdate(LykkeOrderBook orderBook);
 
         OrderBook GetOrderBook(string assetPairId);
+
+        IEnumerable<OrderBook> GetOrderBooks();
     }
 }

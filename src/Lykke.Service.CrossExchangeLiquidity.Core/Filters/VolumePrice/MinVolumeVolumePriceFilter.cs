@@ -29,7 +29,7 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
             return bids.Where(p => p.Volume >= minVolume);
         }
 
-        private decimal GetMinVolume(string assetPairId)
+        public decimal GetMinVolume(string assetPairId)
         {
             return _assetMinVolumes[_assetPairDictionary[assetPairId].BaseAssetId];
         }

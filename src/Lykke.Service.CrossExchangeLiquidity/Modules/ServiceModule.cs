@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AutoMapper;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.MatchingEngine.Connector.Abstractions.Services;
@@ -11,9 +10,9 @@ using Lykke.Service.Assets.Client;
 using Lykke.Service.Balances.Client;
 using Lykke.Service.CrossExchangeLiquidity.AzureRepositories.AssetBalance;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalBalance;
-using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeTrade;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook;
+using Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeTrade;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.ExternalOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.LykkeOrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Core.Filters.TradePart;
@@ -21,6 +20,8 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice;
 using Lykke.Service.CrossExchangeLiquidity.Core.Services;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.ExternalExchange;
 using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
+using Lykke.Service.CrossExchangeLiquidity.Models.Balance;
+using Lykke.Service.CrossExchangeLiquidity.Models.OrderBook;
 using Lykke.Service.CrossExchangeLiquidity.Services;
 using Lykke.Service.CrossExchangeLiquidity.Services.ExternalExchange;
 using Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange;
@@ -29,6 +30,9 @@ using Lykke.Service.CrossExchangeLiquidity.Services.RabbitMQ;
 using Lykke.Service.CrossExchangeLiquidity.Settings.ServiceSettings;
 using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Modules
 {
@@ -77,8 +81,28 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
             RegisterMatchingEngine(builder);
             RegisterOrderBook(builder);
             RegisterLykkeOrderBook(builder);
+            RegisterUI(builder);
 
             builder.Populate(_services);
+        }
+
+        private void RegisterUI(ContainerBuilder builder)
+        {
+            var mapperProvider = new MapperProvider();
+            IMapper mapper = mapperProvider.GetMapper();
+            builder.RegisterInstance(mapper).As<IMapper>();
+
+            builder.RegisterType<OrderBookProvider>()
+                .As<IOrderBookProvider>();
+
+            builder.RegisterType<VolumePriceFilterModelFactory>()
+                .As<IVolumePriceFilterModelFactory>();
+
+            builder.RegisterType<BalanceProvider>()
+                .As<IBalanceProvider>();
+
+            builder.RegisterInstance(_settings.CurrentValue)
+                .As<CrossExchangeLiquiditySettings>();
         }
 
         private void RegisterExternalBalanceService(ContainerBuilder builder)
@@ -122,13 +146,13 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
         }
 
         private void RegisterLimitOrderMessageSubscriber(ContainerBuilder builder)
-        {            
+        {
             builder.RegisterType<ClientIdTradePartFilter>()
                 .As<ITradePartFilter>()
                 .WithParameter("settings", _settings.CurrentValue.MatchingEngineTrader);
 
             builder.RegisterType<LimitOrderMessageProcessor>()
-                .As<IMessageProcessor<LimitOrderMessage>>();            
+                .As<IMessageProcessor<LimitOrderMessage>>();
 
             builder.RegisterType<Deserializer<LimitOrderMessage>>()
                 .As<IMessageDeserializer<LimitOrderMessage>>();
@@ -157,13 +181,13 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
 
             //MatchingEngineTrader
             //Attention! Keep filters order!
-            builder.Register(c => new CompositeVolumePriceFilter(new IVolumePriceFilter[]
+            builder.Register(c => new IVolumePriceFilter[]
                 {
                     new VolumePartVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.UseVolumePart),
                         c.Resolve<IAssetPairDictionary>()),
                     new MinVolumeVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.MinVolume),
                         c.Resolve<IAssetPairDictionary>()),
-                    new ExternalBalanceVolumePriceFilter(c.Resolve<IExternalBalanceService>(), 
+                    new ExternalBalanceVolumePriceFilter(c.Resolve<IExternalBalanceService>(),
                         c.Resolve<IAssetPairDictionary>()),
                     new RiskMarkupVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Assets.ToDictionary(a=>a.AssetId, a=>a.RiskMarkup),
                         c.Resolve<IAssetPairDictionary>()),
@@ -171,8 +195,13 @@ namespace Lykke.Service.CrossExchangeLiquidity.Modules
                         c.Resolve<IAssetPairDictionary>()),
                     new TopVolumePriceFilter(_settings.CurrentValue.VolumePriceFilters.Count),
                     new BestPriceFilter(c.Resolve<IBestPriceEvaluator>())
-                }))
-                .As<IVolumePriceFilter>();
+                })
+                .As<IEnumerable<IVolumePriceFilter>>()
+                .SingleInstance();
+
+            builder.RegisterType<CompositeVolumePriceFilter>()
+                .As<IVolumePriceFilter>()
+                .SingleInstance();
 
             builder.RegisterInstance(_settings.CurrentValue.MatchingEngineTrader)
                 .As<IMatchingEngineTraderSettings>();

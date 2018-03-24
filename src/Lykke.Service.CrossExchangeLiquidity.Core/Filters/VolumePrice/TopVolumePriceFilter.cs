@@ -7,21 +7,21 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Filters.VolumePrice
 {
     public class TopVolumePriceFilter : IVolumePriceFilter
     {
-        private readonly int _count;
+        public int Count { get; }
 
         public TopVolumePriceFilter(int count)
         {
-            _count = count;
+            Count = count;
         }
 
         public IEnumerable<SourcedVolumePrice> GetAsks(string assetPairId, IEnumerable<SourcedVolumePrice> asks)
         {
-            return asks.Take(_count);
+            return asks.Take(Count);
         }
 
         public IEnumerable<SourcedVolumePrice> GetBids(string assetPairId, IEnumerable<SourcedVolumePrice> bids)
         {
-            return bids.Take(_count);
+            return bids.Take(Count);
         }
     }
 }

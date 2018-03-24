@@ -8,6 +8,7 @@ using Lykke.Service.CrossExchangeLiquidity.Core.Settings.LykkeExchange;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -71,6 +72,11 @@ namespace Lykke.Service.CrossExchangeLiquidity.Services.LykkeExchange
             }
 
             return 0;
+        }
+
+        public ReadOnlyDictionary<string, decimal> GetBalances()
+        {
+            return new ReadOnlyDictionary<string, decimal>(_balances);
         }
 
         public void Start()

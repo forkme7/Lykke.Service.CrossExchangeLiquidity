@@ -1,6 +1,7 @@
 ﻿using Lykke.Service.CrossExchangeLiquidity.Core.Settings;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
@@ -24,12 +25,18 @@ namespace Lykke.Service.CrossExchangeLiquidity.Core.Domain.LykkeOrderBook
 
         public OrderBook GetOrderBook(string assetPairId)
         {
-            if (_dictionary.TryGetValue(assetPairId, out var orderBook))
+            if (!string.IsNullOrEmpty(assetPairId) 
+                && _dictionary.TryGetValue(assetPairId, out var orderBook))
             {
                 return orderBook;
             }
 
             return null;
+        }
+
+        public IEnumerable<OrderBook> GetOrderBooks()
+        {
+            return _dictionary.Values.ToArray();
         }
 
         private OrderBook UpdateOrderBook(OrderBook orderBook, LykkeOrderBook lykkeOrderBook)
